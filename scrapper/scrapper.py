@@ -8,31 +8,34 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import chardet
 
+# 검색결과를 요청해서 html로 가져옴
+# html = bytes('', encoding='utf-8')
+def get_html_page(str_total_word):
+    html = bytes('', encoding='EUC-KR')
+    str_html = ""
+    try:
+        print('=== scrapper ===')
+        html = urlopen(str_total_word).read()
+        print("success..")
+
+        # print('*** encoding type: {0}'.format(chardet.detect(html)))
+        str_html = html.decode('utf-8', 'ignore')
+        print('type: {0}, html: \n{1}'.format(type(str_html), str_html))
+
+    except HTTPError as e:
+        print("exception 1")
+        print(e.code)
+    except URLError as e:
+        print("exception 2")
+        print(e.code)
+
 str_search_base = "https://finance.naver.com/"
-str_item_page = "item/sise.nhn?code="
+str_item_page = "item/sise_day.nhn?code="
 str_code = "035420"
 str_total_word = str_search_base + str_item_page + str_code
 print("url : {}", str_total_word)
 
-# 검색결과를 요청해서 html로 가져옴
-html = bytes('', encoding='utf-8')
-str_html = ""
-try:
-    print('=== scrapper ===')
-    html = urlopen(str_total_word).read()
-    print("success..")
-
-    # print('*** encoding type: {0}'.format(chardet.detect(html)))
-    str_html = html.decode('utf-8', 'ignore')
-    print('type: {0}, html: \n{1}'.format(type(str_html), str_html))
-
-except HTTPError as e:
-    print("exception 1")
-    print(e.code)
-except URLError as e:
-    print("exception 2")
-    print(e.code)
-
+get_html_page(str_total_word)
 
 # # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
 # # BeautifulSoup으로 html소스를 python객체로 변환하기
