@@ -19,6 +19,9 @@ RUN pip3 install --upgrade pip
 RUN pip3 install requests
 RUN apt-get install -y python3-bs4
 
+# install pandas_datareader
+RUN pip3 install pandas-datareader
+
 # Set environment variables
 # UBUNTU korean locale
 RUN apt-get install -y locales

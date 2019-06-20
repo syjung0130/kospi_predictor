@@ -7,7 +7,15 @@ from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import chardet
+import pandas as pd
+import pandas_datareader.data as pd_reader
+import datetime
+import sqlite3
 
+'''
+naver finance crawling
+ - to collect price every hour
+'''
 # 검색결과를 요청해서 html로 가져옴
 # html = bytes('', encoding='utf-8')
 def get_html_page(str_total_word):
@@ -29,13 +37,33 @@ def get_html_page(str_total_word):
         print("exception 2")
         print(e.code)
 
+'''
+yahoo finance + pandas datareader
+ - to collect price every day
+'''
+def read_stock_data():
+    start = datetime.datetime(2019, 5, 1)
+    end = datetime.datetime(2019, 6, 20)
+    web_data_frame = pd_reader.DataReader("035420.KS", "yahoo", start, end)
+
+    print('==== stock data info from web =====')
+    print(web_data_frame.head)
+
+    con =  sqlite3.connect("./kospi.db")
+    web_data_frame.to_sql("035420", con, if_exists='replace')
+    readed_data_frame = pd.read_sql("SELECT * FROM '035420'", con, index_col = 'Date')
+    print('==== readed stock data info =====')
+    print(readed_data_frame.head)
+
 str_search_base = "https://finance.naver.com/"
 str_item_page = "item/sise_day.nhn?code="
 str_code = "035420"
 str_total_word = str_search_base + str_item_page + str_code
 print("url : {}", str_total_word)
 
-get_html_page(str_total_word)
+# get_html_page(str_total_word)
+read_stock_data()
+
 
 # # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
 # # BeautifulSoup으로 html소스를 python객체로 변환하기
