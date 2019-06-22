@@ -1,5 +1,19 @@
 # KOSPI Predictor
 
+## Docker 실행 방법
+cd docker
+docker build -t scrapper:imx-1 .
+./run_container.sh
+ - Docker 컨테이너 모두 삭제
+ docker rm $(docker ps -a -q)
+ - Docker 이미지 모두 삭제
+ docker rmi $(docker images -q)
+ - 특정 이미지만 삭제
+ (image 리스트 확인)
+ docker images
+ (특정 이미지를 삭제)
+ docker rmi 이미지id
+
 ## 개요
 KOSPI 가격을 예측하는 프로그램.
 
