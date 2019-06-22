@@ -6,17 +6,17 @@ cd docker
 docker build -t scrapper:imx-1 .  
 - docker container 실행
 ./run_container.sh . 
-- 프로그램 
+- 프로그램 실행  
 ../pybuild.sh
- - Docker 컨테이너 모두 삭제
+ - Docker 컨테이너 모두 삭제  
  docker rm $(docker ps -a -q)
- - Docker 이미지 모두 삭제
+ - Docker 이미지 모두 삭제  
  docker rmi $(docker images -q)
- - 특정 이미지만 삭제
- (image 리스트 확인)
- docker images
- (특정 이미지를 삭제)
- docker rmi 이미지id
+ - 특정 이미지만 삭제  
+ (image 리스트 확인)  
+ docker images  
+ (특정 이미지를 삭제)  
+ docker rmi 이미지id  
 
 ## 개요
 KOSPI 가격을 예측하는 프로그램.
