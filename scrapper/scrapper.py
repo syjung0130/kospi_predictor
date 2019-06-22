@@ -16,53 +16,72 @@ import sqlite3
 naver finance crawling
  - to collect price every hour
 '''
-# 검색결과를 요청해서 html로 가져옴
-# html = bytes('', encoding='utf-8')
-def get_html_page(str_total_word):
-    html = bytes('', encoding='EUC-KR')
-    str_html = ""
-    try:
-        print('=== scrapper ===')
-        html = urlopen(str_total_word).read()
-        print("success..")
+class HourlyCollector:
+    def __init__(self, code):
+        if(type(code) is str):
+            self.str_code = code
+        else:
+            self.str_code = str(code)
+        self.set_url(code)
 
-        # print('*** encoding type: {0}'.format(chardet.detect(html)))
-        str_html = html.decode('utf-8', 'ignore')
-        print('type: {0}, html: \n{1}'.format(type(str_html), str_html))
+    def set_url(self, code):
+        self.str_search_base = "https://finance.naver.com/"
+        self.str_item_page = "item/sise_day.nhn?code="
+        # self.str_code = "035420"
+        self.str_total_word = self.str_search_base + self.str_item_page + self.str_code
+        print(self.str_total_word)
 
-    except HTTPError as e:
-        print("exception 1")
-        print(e.code)
-    except URLError as e:
-        print("exception 2")
-        print(e.code)
+    # 검색결과를 요청해서 html로 가져옴
+    # html = bytes('', encoding='utf-8')
+    def get_html_page(self):
+        html = bytes('', encoding='EUC-KR')
+        self.str_html = ""
+        try:
+            print('=== scrapper ===')
+            self.html = urlopen(self.str_total_word).read()
+            print("success..")
+
+            # print('*** encoding type: {0}'.format(chardet.detect(html)))
+            self.str_html = html.decode('utf-8', 'ignore')
+            print('type: {0}, html: \n{1}'.format(type(self.str_html), self.str_html))
+
+        except HTTPError as e:
+            print("exception 1")
+            print(e.code)
+        except URLError as e:
+            print("exception 2")
+            print(e.code)
 
 '''
 yahoo finance + pandas datareader
  - to collect price every day
 '''
-def read_stock_data():
-    start = datetime.datetime(2019, 5, 1)
-    end = datetime.datetime(2019, 6, 20)
-    web_data_frame = pd_reader.DataReader("035420.KS", "yahoo", start, end)
+class DailyCollector:
+    def __init__(self, code):
+        if(type(code) is str):
+            self.code = code
+        else:
+            self.code = str(code)
+    
+    def read_stock_data(self):
+        start = datetime.datetime(2019, 5, 1)
+        end = datetime.datetime(2019, 6, 20)
+        self.web_data_frame = pd_reader.DataReader(self.code+".KS", "yahoo", start, end)
 
-    print('==== stock data info from web =====')
-    print(web_data_frame.head)
+        print('==== stock data info from web =====')
+        print(self.web_data_frame.head)
 
-    con =  sqlite3.connect("./kospi.db")
-    web_data_frame.to_sql("035420", con, if_exists='replace')
-    readed_data_frame = pd.read_sql("SELECT * FROM '035420'", con, index_col = 'Date')
-    print('==== readed stock data info =====')
-    print(readed_data_frame.head)
+        con =  sqlite3.connect("./kospi.db")
+        self.web_data_frame.to_sql(self.code, con, if_exists='replace')
+        self.readed_data_frame = pd.read_sql("SELECT * FROM '{}'".format(self.code), con, index_col = 'Date')
+        print('==== readed stock data info =====')
+        print(self.readed_data_frame.head)
 
-str_search_base = "https://finance.naver.com/"
-str_item_page = "item/sise_day.nhn?code="
-str_code = "035420"
-str_total_word = str_search_base + str_item_page + str_code
-print("url : {}", str_total_word)
+hourly_collector = HourlyCollector("035420")
+hourly_collector.get_html_page()
 
-# get_html_page(str_total_word)
-read_stock_data()
+daily_collector = DailyCollector("035420")
+daily_collector.read_stock_data()
 
 
 # # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
