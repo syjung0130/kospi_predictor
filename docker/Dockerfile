@@ -37,6 +37,6 @@ VOLUME /workdir/build
 
 WORKDIR /workdir/build
 
-RUN echo "python3 /workdir/predictor/scrapper/scrapper.py" > /workdir/pybuild.sh && chmod +x /workdir/pybuild.sh
+RUN echo "python3 /workdir/predictor/collector/collector.py" > /workdir/pybuild.sh && chmod +x /workdir/pybuild.sh
 
 CMD ["/bin/bash"]
