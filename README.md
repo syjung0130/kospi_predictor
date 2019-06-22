@@ -1,8 +1,10 @@
 # KOSPI Predictor
 
 ## Docker 실행 방법
-cd docker
-docker build -t scrapper:imx-1 .
+- docker build
+cd docker  
+docker build -t scrapper:imx-1 .  
+- docker container 실행
 ./run_container.sh
 (실행)
 ../pybuild.sh
