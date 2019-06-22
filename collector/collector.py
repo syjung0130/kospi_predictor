@@ -25,6 +25,10 @@ class HourlyCollector:
         self.set_url()
 
     def set_url(self):
+        '''
+        https://finance.naver.com/item/sise_time.nhn?code=035420&amp;thistime=20190621161018&amp;page=1
+        https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621161018&amp&page=1
+        '''
         self.str_search_base = "https://finance.naver.com"
         self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime=20190621161018&amp&page=1".format(self.str_code)
         self.str_total_word = self.str_search_base + self.str_item_page
@@ -83,8 +87,6 @@ daily_collector = DailyCollector("035420")
 daily_collector.read_stock_data()
 
 
-# https://finance.naver.com/item/sise_time.nhn?code=035420&amp;thistime=20190621161018&amp;page=1
-# https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621161018&amp&page=1
 # # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
 # # BeautifulSoup으로 html소스를 python객체로 변환하기
 # # 첫 인자는 html소스코드, 두 번째 인자는 어떤 parser를 이용할지 명시.
