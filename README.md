@@ -4,6 +4,8 @@
 cd docker
 docker build -t scrapper:imx-1 .
 ./run_container.sh
+(실행)
+../pybuild.sh
  - Docker 컨테이너 모두 삭제
  docker rm $(docker ps -a -q)
  - Docker 이미지 모두 삭제
