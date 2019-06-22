@@ -4,7 +4,7 @@
 - docker build
 cd docker  
 docker build -t scrapper:imx-1 .  
-- docker container 실행
+- docker container 실행  
 ./run_container.sh . 
 - 프로그램 실행  
 ../pybuild.sh
