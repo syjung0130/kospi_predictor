@@ -10,8 +10,9 @@ KOSPI 가격을 예측하는 프로그램.
   - 금융 정보의 데이터를 크롤링해서 특정 기간의 데이터(시가, 종가, 거래량)를  시/일 단위로 DB로 저장
  #### 상세 요구 사항
   - 금융정보는 네이버 금융(시간별 데이터), 야후or구글(일봉)을 활용
-  - pandas-reader를 사용방법 참고(yahoo 일봉 data): https://wikidocs.net/5753
+  - pandas-reader 사용방법 참고(yahoo 일봉 data): https://wikidocs.net/5753
   - naver data 수집부, yahoo data 수집부, Database 재가공/managing를 각각 클래스로 구현
+  - naver web crawling reference html 얻기: finance.naver.com접속 -> 종목코드 입력 -> 차트 아래의 '종합정보' 옆의 '시세 차트 클릭 -> '시간별 시세' 표를 우클릭 후, 프레임소스 보기 클릭
   - 읽어올 기간에 대해서는 클래스 사용자가 정할 수 있도록 구현 (data 학습 및 예측부에서 유연하게 변경이 가능하도록)
   - data 학습 및 예측부, 예상 가격 출력부 에서 사용할 데이터를 Database로 저장
   - 종목코드는 초기 기능구현 시에는 고정으로 한 종목만을 사용하고, 추후 확장해나갈 예정
