@@ -36,16 +36,16 @@ class HourlyCollector:
 
     # 검색결과를 요청해서 html로 가져옴
     def get_html_page(self):
-        self.html = bytes('', encoding='utf-8')
         self.str_html = ""
         try:
             print('=== scrapper ===')
             self.html = urlopen(self.str_total_word).read()
-            print("success..({})".format(self.str_total_word))
-            print(self.html)
+            print("success..()")
+            # print(self.html)
 
             print('*** encoding type: {0}'.format(chardet.detect(self.html)))
-            self.str_html = self.html.decode('utf-8', 'ignore')
+            encoding_type = chardet.detect(self.html)
+            self.str_html = self.html.decode(encoding_type['encoding'], 'ignore')
             print('type: {0}, html: \n{1}'.format(type(self.str_html), self.str_html))
 
         except HTTPError as e:
