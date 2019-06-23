@@ -28,9 +28,11 @@ class HourlyCollector:
         '''
         https://finance.naver.com/item/sise_time.nhn?code=035420&amp;thistime=20190621161018&amp;page=1
         https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621161018&amp&page=1
+        https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621161018&amp&page=10
         '''
         self.str_search_base = "https://finance.naver.com"
-        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime=20190621161018&amp&page=1".format(self.str_code)
+        self.base_time = "161000"
+        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime=20190621{}&amp&page=10".format(self.str_code, self.base_time)
         self.str_total_word = self.str_search_base + self.str_item_page
         print(self.str_total_word)
 
@@ -46,7 +48,7 @@ class HourlyCollector:
             print('*** encoding type: {0}'.format(chardet.detect(self.html)))
             encoding_type = chardet.detect(self.html)
             self.str_html = self.html.decode(encoding_type['encoding'], 'ignore')
-            print('type: {0}, html: \n{1}'.format(type(self.str_html), self.str_html))
+            # print('type: {0}, html: \n{1}'.format(type(self.str_html), self.str_html))
 
         except HTTPError as e:
             print("exception 1")
@@ -54,6 +56,38 @@ class HourlyCollector:
         except URLError as e:
             print("exception 2")
             print(e.code)
+    
+    def get_value_list(self):
+        print('=======================')
+        print('[DailyCollecotr][value] ')
+        # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
+        # BeautifulSoup으로 html소스를 python객체로 변환하기
+        # 첫 인자는 html소스코드, 두 번째 인자는 어떤 parser를 이용할지 명시.
+        # 이 글에서는 Python 내장 html.parser를 이용했다.
+        self.soup = BeautifulSoup(self.html, 'html.parser')
+        soup = self.soup
+        #recruit_info_list > ul > li:nth-child(1) > div > div > h2 > a
+        # print('[soup] body {0}'.format(self.soup.body))
+        # print('[soup] h2: {0}'.format(soup.h2))
+
+        # table = soup.body.table
+        table_list = soup.body.find_all("table")
+        print('[soup] table_list: {}'.format(len(table_list)))
+        print('type table[0]: {}'.format(type(table_list[0])))
+        price_info_list = table_list[0].find_all("tr")
+        price_list = []
+        print('[soup] price info list length: {}'.format(len(price_info_list)))
+        for i in range(len(price_info_list)):
+            tr_item = price_info_list[i]
+            temp = tr_item.find_all('td', {'class':'num'})
+            if not temp:
+                print(' it is not num.. skip({0})'.format(i))
+                print(temp)
+                continue
+            else:
+                price_list.append(price_info_list[i])
+        print('[soup] price list: {}'.format(len(price_list)))
+
 
 '''
 yahoo finance + pandas datareader
@@ -82,6 +116,7 @@ class DailyCollector:
 
 hourly_collector = HourlyCollector("035420")
 hourly_collector.get_html_page()
+hourly_collector.get_value_list()
 
 daily_collector = DailyCollector("035420")
 daily_collector.read_stock_data()
