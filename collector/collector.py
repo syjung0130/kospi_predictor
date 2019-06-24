@@ -60,17 +60,12 @@ class HourlyCollector:
     def get_value_list(self):
         print('=======================')
         print('[DailyCollecotr][value] ')
-        # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
         # BeautifulSoup으로 html소스를 python객체로 변환하기
         # 첫 인자는 html소스코드, 두 번째 인자는 어떤 parser를 이용할지 명시.
-        # 이 글에서는 Python 내장 html.parser를 이용했다.
         self.soup = BeautifulSoup(self.html, 'html.parser')
         soup = self.soup
-        #recruit_info_list > ul > li:nth-child(1) > div > div > h2 > a
-        # print('[soup] body {0}'.format(self.soup.body))
-        # print('[soup] h2: {0}'.format(soup.h2))
 
-        # table = soup.body.table
+        # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
         table_list = soup.body.find_all("table")
         print('[soup] table_list: {}'.format(len(table_list)))
         print('type table[0]: {}'.format(type(table_list[0])))
