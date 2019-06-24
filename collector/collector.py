@@ -75,19 +75,16 @@ class HourlyCollector:
         print('[soup] table_list: {}'.format(len(table_list)))
         print('type table[0]: {}'.format(type(table_list[0])))
         tr_tag_list = table_list[0].find_all("tr")
-        price_list = []
-        print('[soup] price info list length: {}'.format(len(tr_tag_list)))
-        for i in range(len(tr_tag_list)):
-            tr_item = tr_tag_list[i]
-            temp = tr_item.find_all('td', {'class':'num'})
-            if not temp:
-                print(' it is not num.. skip({0})'.format(i))
-                print(temp)
-                continue
-            else:
-                price_list.append(tr_tag_list[i])
-                print(tr_tag_list[i])
-        print('[soup] price list: {}'.format(len(price_list)))
+        
+        print('[soup] price tr tag list length: {}'.format(len(tr_tag_list)))
+        full_price_attr_list = [ item.find_all('td', {'class':'num'}) for item in tr_tag_list ]
+        price_attr_list = [ attr for attr in full_price_attr_list if attr]
+        # for item in price_attr_list:
+        #     print('item: {}'.format(item))
+
+        print('[soup] full_price_attr_list: {}'.format(len(full_price_attr_list)))
+        print('[soup] price attr list: {}'.format(len(price_attr_list)))
+
 
 
 '''
