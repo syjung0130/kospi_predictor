@@ -57,7 +57,7 @@ class HourlyCollector:
             print("exception 2")
             print(e.code)
     
-    def get_value_list(self):
+    def update_price(self):
         print('=======================')
         print('[DailyCollecotr][value] ')
         # BeautifulSoup으로 html소스를 python객체로 변환하기
@@ -74,8 +74,8 @@ class HourlyCollector:
         print('[soup] price tr tag list length: {}'.format(len(tr_tag_list)))
         full_price_attr_list = [ item.find_all('td', {'class':'num'}) for item in tr_tag_list ]
         price_attr_list = [ attr for attr in full_price_attr_list if attr]
-        # for item in price_attr_list:
-        #     print('item: {}'.format(item))
+        for item in price_attr_list:
+            print('item: {}'.format(item))
 
         print('[soup] full_price_attr_list: {}'.format(len(full_price_attr_list)))
         print('[soup] price attr list: {}'.format(len(price_attr_list)))
@@ -109,7 +109,7 @@ class DailyCollector:
 
 hourly_collector = HourlyCollector("035420")
 hourly_collector.get_html_page()
-hourly_collector.get_value_list()
+hourly_collector.update_price()
 
 daily_collector = DailyCollector("035420")
 daily_collector.read_stock_data()
