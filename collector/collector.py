@@ -87,6 +87,7 @@ class HourlyCollector:
         for item in price_attr_list:
             print('type: {0}, item: {1}'.format(type(item), item))
             print('item[0], tag: {0}, {1}'.format(type(item[0]),item[0]))
+            # item[0], tag: <class 'bs4.element.Tag'>, <span class="tah p11">113,500</span>
             tag = item[0]
             value = tag.find({'class':'tah p11'})
             print('value: {0}'.format(value))
