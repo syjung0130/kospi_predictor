@@ -28,11 +28,11 @@ class HourlyCollector:
         '''
         https://finance.naver.com/item/sise_time.nhn?code=035420&amp;thistime=20190621161018&amp;page=1
         https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621161018&amp&page=1
-        https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621161018&amp&page=10
+        https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621130000&amp&page=1
         '''
         self.str_search_base = "https://finance.naver.com"
-        self.base_time = "161000"
-        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime=20190621{}&amp&page=10".format(self.str_code, self.base_time)
+        self.base_time = "130000"
+        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime=20190621{}&amp&page=1".format(self.str_code, self.base_time)
         self.str_total_word = self.str_search_base + self.str_item_page
         print(self.str_total_word)
 
@@ -68,7 +68,7 @@ class HourlyCollector:
         tr_tag_list = table_list[0].find_all("tr")
         
         print('[soup] price tr tag list length: {}'.format(len(tr_tag_list)))
-        full_price_attr_list = [ item.find_all('td', {'class':'num'}) for item in tr_tag_list ]
+        full_price_attr_list = [ item.find_all('span', {'class':'tah p11'}) for item in tr_tag_list ]
         price_attr_list = [ attr for attr in full_price_attr_list if attr]
         for item in price_attr_list:
             print('item: {}'.format(item))
