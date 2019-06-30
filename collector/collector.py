@@ -11,6 +11,7 @@ import pandas as pd
 import pandas_datareader.data as pd_reader
 import datetime
 import sqlite3
+import threading
 
 '''
 naver finance crawling
@@ -22,17 +23,28 @@ class HourlyCollector:
             self.str_code = code
         else:
             self.str_code = str(code)
+        
+        self.start_time = datetime.datetime(2019, 6, 21, 9, 10, 00)
+        self.end_time = datetime.datetime(2019, 6, 21, 15, 30, 00)
+        self.set_base_time(self.start_time)
         self.set_url()
+        self.time_table = {}
+
+    def set_base_time(self, time):
+        self.base_time = time
+
+    def get_base_time_str(self):
+        nowDatetime = self.base_time.strftime('%Y%m%d%H%M%S')
+        return nowDatetime
 
     def set_url(self):
         '''
-        https://finance.naver.com/item/sise_time.nhn?code=035420&amp;thistime=20190621161018&amp;page=1
-        https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621161018&amp&page=1
         https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621130000&amp&page=1
         '''
         self.str_search_base = "https://finance.naver.com"
-        self.base_time = "130000"
-        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime=20190621{}&amp&page=1".format(self.str_code, self.base_time)
+        self.set_base_time(self.start_time)
+
+        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime={}&amp&page=1".format(self.str_code, self.get_base_time_str())
         self.str_total_word = self.str_search_base + self.str_item_page
         print(self.str_total_word)
 
@@ -70,10 +82,28 @@ class HourlyCollector:
         print('[soup] price tr tag list length: {}'.format(len(tr_tag_list)))
         full_price_attr_list = [ item.find_all('span', {'class':'tah p11'}) for item in tr_tag_list ]
         price_attr_list = [ attr for attr in full_price_attr_list if attr]
+        price_list = []
+        deal_volume_list = []
         for item in price_attr_list:
-            print('item: {}'.format(item))
+            print('type: {0}, item: {1}'.format(type(item), item))
+            print('item[0], tag: {0}, {1}'.format(type(item[0]),item[0]))
+            tag = item[0]
+            value = tag.find({'class':'tah p11'})
+            print('value: {0}'.format(value))
+            price_list.append(item[0])
+        
 
+        # self.update_ten_prices(price_attr_list)
         print('[soup] full_price_attr_list len: {0}, price attr list: {1}'.format(len(full_price_attr_list), len(price_attr_list)))
+    
+    def update_ten_prices(self, price_list):
+        str_time_offset = self.get_base_time_str()
+        for i in list(reversed(price_list)):
+            self.time_table[str_time_offset] = price_list[i]
+            #"130000"
+            str_time_offset[3] = str(i)
+        print("time table dict: ")
+        print(self_time_table)
 
 
 '''
