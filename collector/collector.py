@@ -12,6 +12,7 @@ import pandas_datareader.data as pd_reader
 import datetime
 import sqlite3
 import threading
+import re
 
 '''
 naver finance crawling
@@ -24,8 +25,8 @@ class HourlyCollector:
         else:
             self.str_code = str(code)
         
-        self.start_time = datetime.datetime(2019, 6, 21, 9, 10, 00)
-        self.end_time = datetime.datetime(2019, 6, 21, 15, 30, 00)
+        self.start_time = datetime.datetime(2019, 6, 28, 9, 10, 00)
+        self.end_time = datetime.datetime(2019, 6, 28, 15, 30, 00)
         self.set_base_time(self.start_time)
         self.set_url()
         self.time_table = {}
@@ -88,14 +89,19 @@ class HourlyCollector:
             print('type: {0}, item: {1}'.format(type(item), item))
             print('item[0], tag: {0}, {1}'.format(type(item[0]),item[0]))
             # item[0], tag: <class 'bs4.element.Tag'>, <span class="tah p11">113,500</span>
-            tag = item[0]
-            value = tag.find({'class':'tah p11'})
-            print('value: {0}'.format(value))
-            price_list.append(item[0])
-        
 
-        # self.update_ten_prices(price_attr_list)
-        print('[soup] full_price_attr_list len: {0}, price attr list: {1}'.format(len(full_price_attr_list), len(price_attr_list)))
+            # p = re.compile('\<[a-zA-Z]+.*class\=\"refresh\".*[\>])([^<]*)(\<\/[a-zA-Z]+\>')
+            p = re.compile('\>[0-9,]+')
+            value_list = p.findall(str(item[0]))
+            price = value_list[0].replace("\>", '')
+            price = value_list[0].replace(',', '')
+            price_list.append(price)
+            deal_volume_list.append(value_list[-1])
+
+        print('price list: {0}'.format(price_list))
+        # print('deal volume: {1}'.format(deal_volume_list))
+        # self.update_ten_prices(value_list)
+        # print('[soup] full_price_attr_list len: {0}, price attr list: {1}'.format(len(full_price_attr_list), len(price_attr_list)))
     
     def update_ten_prices(self, price_list):
         str_time_offset = self.get_base_time_str()
@@ -136,8 +142,8 @@ hourly_collector = HourlyCollector("035420")
 hourly_collector.get_html_page()
 hourly_collector.update_price()
 
-daily_collector = DailyCollector("035420")
-daily_collector.read_stock_data()
+# daily_collector = DailyCollector("035420")
+# daily_collector.read_stock_data()
 
 
 # # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
