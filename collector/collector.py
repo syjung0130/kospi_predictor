@@ -90,16 +90,19 @@ class HourlyCollector:
             print('item[0], tag: {0}, {1}'.format(type(item[0]),item[0]))
             # item[0], tag: <class 'bs4.element.Tag'>, <span class="tah p11">113,500</span>
 
-            # p = re.compile('\<[a-zA-Z]+.*class\=\"refresh\".*[\>])([^<]*)(\<\/[a-zA-Z]+\>')
             p = re.compile('\>[0-9,]+')
             value_list = p.findall(str(item[0]))
-            price = value_list[0].replace("\>", '')
-            price = value_list[0].replace(',', '')
+            price = value_list[0][1:]
+            price = price.replace(',', '')
             price_list.append(price)
-            deal_volume_list.append(value_list[-1])
+            
+            value_list = p.findall(str(item[-2]))
+            deal_volume = value_list[0][1:]
+            deal_volume = deal_volume.replace(',', '')
+            deal_volume_list.append(deal_volume)
 
         print('price list: {0}'.format(price_list))
-        # print('deal volume: {1}'.format(deal_volume_list))
+        print('deal volume list: {0}'.format(deal_volume_list))
         # self.update_ten_prices(value_list)
         # print('[soup] full_price_attr_list len: {0}, price attr list: {1}'.format(len(full_price_attr_list), len(price_attr_list)))
     
