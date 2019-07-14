@@ -140,8 +140,8 @@ class DailyCollector:
         end = datetime.datetime(2019, 6, 20)
         self.web_data_frame = pd_reader.DataReader(self.code+".KS", "yahoo", start, end)
 
-        print('==== stock data info from web =====')
-        print(self.web_data_frame.head)
+        # print('==== stock data info from web =====')
+        # print(self.web_data_frame.head)
 
         con =  sqlite3.connect("./kospi.db")
         self.web_data_frame.to_sql(self.code, con, if_exists='replace')
@@ -153,3 +153,5 @@ hourly_collector = HourlyCollector("035420")
 hourly_collector.get_html_page()
 hourly_collector.update_price()
 
+daily_collector = DailyCollector("035420")
+daily_collector.read_stock_data()
