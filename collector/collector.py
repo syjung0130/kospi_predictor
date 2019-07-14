@@ -25,8 +25,8 @@ class HourlyCollector:
         else:
             self.str_code = str(code)
         
-        self.start_time = datetime.datetime(2019, 6, 28, 9, 10, 00)
-        self.end_time = datetime.datetime(2019, 6, 28, 15, 30, 00)
+        self.start_time = datetime.datetime(2019, 7, 11, 9, 10, 00)
+        self.end_time = datetime.datetime(2019, 7, 11, 15, 30, 00)
         self.set_base_time(self.start_time)
         self.set_url()
         self.time_table = {}
@@ -35,8 +35,13 @@ class HourlyCollector:
         self.base_time = time
 
     def get_base_time_str(self):
-        nowDatetime = self.base_time.strftime('%Y%m%d%H%M%S')
-        return nowDatetime
+        base_time_str = self.get_time_str(self.base_time)
+        # nowDatetime = self.base_time.strftime('%Y%m%d%H%M%S')
+        return base_time_str
+    
+    def get_time_str(self, time):
+        time_str = time.strftime('%Y%m%d%H%M%S')
+        return time_str
 
     def set_url(self):
         '''
@@ -77,17 +82,17 @@ class HourlyCollector:
 
         # BeautifulSoup를 이용해서 가져온 html을 parsing, 필요한 정보를 구성
         table_list = self.soup.body.find_all("table")
-        print('[soup] table_list len: {0}, type: {1}'.format(len(table_list), type(table_list[0])))
+        # print('[soup] table_list len: {0}, type: {1}'.format(len(table_list), type(table_list[0])))
         tr_tag_list = table_list[0].find_all("tr")
         
-        print('[soup] price tr tag list length: {}'.format(len(tr_tag_list)))
+        # print('[soup] price tr tag list length: {}'.format(len(tr_tag_list)))
         full_price_attr_list = [ item.find_all('span', {'class':'tah p11'}) for item in tr_tag_list ]
         price_attr_list = [ attr for attr in full_price_attr_list if attr]
         price_list = []
         deal_volume_list = []
         for item in price_attr_list:
-            print('type: {0}, item: {1}'.format(type(item), item))
-            print('item[0], tag: {0}, {1}'.format(type(item[0]),item[0]))
+            # print('type: {0}, item: {1}'.format(type(item), item))
+            # print('item[0], tag: {0}, {1}'.format(type(item[0]),item[0]))
             # item[0], tag: <class 'bs4.element.Tag'>, <span class="tah p11">113,500</span>
 
             p = re.compile('\>[0-9,]+')
@@ -103,17 +108,20 @@ class HourlyCollector:
 
         print('price list: {0}'.format(price_list))
         print('deal volume list: {0}'.format(deal_volume_list))
-        # self.update_ten_prices(value_list)
+        
         # print('[soup] full_price_attr_list len: {0}, price attr list: {1}'.format(len(full_price_attr_list), len(price_attr_list)))
-    
-    def update_ten_prices(self, price_list):
+        temp_time = self.base_time
+        self.update_prices_in_ten_minutes(price_list, temp_time)
+
+    def update_prices_in_ten_minutes(self, price_list, time):
         str_time_offset = self.get_base_time_str()
-        for i in list(reversed(price_list)):
-            self.time_table[str_time_offset] = price_list[i]
-            #"130000"
-            str_time_offset[3] = str(i)
-        print("time table dict: ")
-        print(self_time_table)
+        cur_time = time
+        for item in list(reversed(price_list)):
+            self.time_table[str_time_offset] = int(item)
+            one_minute = datetime.timedelta(minutes=1)
+            cur_time = cur_time + one_minute
+            str_time_offset = self.get_time_str(cur_time)
+        print("time table dict: {}".format(self.time_table))
 
 
 '''
