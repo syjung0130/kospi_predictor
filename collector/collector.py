@@ -136,18 +136,26 @@ class DailyCollector:
             self.code = str(code)
     
     def read_stock_data(self):
-        start = datetime.datetime(2019, 5, 1)
+        start = datetime.datetime(2009, 5, 1)
         end = datetime.datetime(2019, 6, 20)
         self.web_data_frame = pd_reader.DataReader(self.code+".KS", "yahoo", start, end)
 
         # print('==== stock data info from web =====')
         # print(self.web_data_frame.head)
 
-        con =  sqlite3.connect("./kospi.db")
-        self.web_data_frame.to_sql(self.code, con, if_exists='replace')
-        self.readed_data_frame = pd.read_sql("SELECT * FROM '{}'".format(self.code), con, index_col = 'Date')
+        self.kospi_data = KospiDBManager(self.code)
+        self.kospi_data.read_web_api_data(self.web_data_frame)
+
+class KospiDBManager:
+    def __init__(self, code):
+        self.con = sqlite3.connect("./kospi.db")
+        self.code = code
+
+    def read_web_api_data(self, web_data_frame):
+        web_data_frame.to_sql(self.code, self.con, if_exists='replace')
+        self.read_data_frame = pd.read_sql("SELECT * FROM '{}'".format(self.code), self.con, index_col = 'Date')
         print('==== readed stock data info =====')
-        print(self.readed_data_frame.head)
+        print(self.read_data_frame.head)
 
 hourly_collector = HourlyCollector("035420")
 hourly_collector.get_html_page()
