@@ -13,6 +13,7 @@ import datetime
 import sqlite3
 import threading
 import re
+import collections
 
 '''
 naver finance crawling
@@ -28,8 +29,9 @@ class HourlyCollector:
         self.start_time = datetime.datetime(2019, 7, 11, 9, 10, 00)
         self.end_time = datetime.datetime(2019, 7, 11, 15, 30, 00)
         self.set_base_time(self.start_time)
-        self.set_url()
-        self.time_table = {}
+        self.set_url(self.start_time)
+        self.time_table = collections.OrderedDict()
+        self.volume_table = collections.OrderedDict()
 
     def set_base_time(self, time):
         self.base_time = time
@@ -40,15 +42,14 @@ class HourlyCollector:
         return base_time_str
     
     def get_time_str(self, time):
-        time_str = time.strftime('%Y%m%d%H%M%S')
-        return time_str
+        return time.strftime('%Y%m%d%H%M%S')
 
-    def set_url(self):
+    def set_url(self, time):
         '''
         https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621130000&amp&page=1
         '''
         self.str_search_base = "https://finance.naver.com"
-        self.set_base_time(self.start_time)
+        self.set_base_time(time)
 
         self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime={}&amp&page=1".format(self.str_code, self.get_base_time_str())
         self.str_total_word = self.str_search_base + self.str_item_page
@@ -111,18 +112,36 @@ class HourlyCollector:
         
         # print('[soup] full_price_attr_list len: {0}, price attr list: {1}'.format(len(full_price_attr_list), len(price_attr_list)))
         temp_time = self.base_time
-        self.update_prices_in_ten_minutes(price_list, temp_time)
+        self.update_prices_in_ten_minutes(price_list, deal_volume_list, temp_time)
 
-    def update_prices_in_ten_minutes(self, price_list, time):
-        str_time_offset = self.get_base_time_str()
+    def update_prices_in_ten_minutes(self, price_list, volume_list, time):
         cur_time = time
         for item in list(reversed(price_list)):
-            self.time_table[str_time_offset] = int(item)
+            self.time_table[cur_time] = int(item)
             one_minute = datetime.timedelta(minutes=1)
             cur_time = cur_time + one_minute
-            str_time_offset = self.get_time_str(cur_time)
-        print("time table dict: {}".format(self.time_table))
+        # print("time table dict: {}".format(self.time_table))
+        
+        cur_time = time
+        for item in list(reversed(volume_list)):
+            self.volume_table[cur_time] = int(item)
+            one_minute = datetime.timedelta(minutes=1)
+            cur_time = cur_time + one_minute
+        # print("volume table dict: {}".format(self.volume_table))
+    
+    def read_stock_data(self):
+        count = 6*6+2
+        print("count : {}".format(count))
+        temp_time = self.start_time
 
+        for i in range(count):
+            print('current time: {}'.format(self.get_time_str(temp_time)))
+            self.set_url(temp_time)
+            self.get_html_page()
+            self.update_price()
+            ten_minute = datetime.timedelta(minutes=10)
+            temp_time = temp_time + ten_minute
+            
 
 '''
 yahoo finance + pandas datareader
@@ -157,9 +176,8 @@ class KospiDBManager:
         print('==== readed stock data info =====')
         print(self.read_data_frame.head)
 
-hourly_collector = HourlyCollector("035420")
-hourly_collector.get_html_page()
-hourly_collector.update_price()
-
 daily_collector = DailyCollector("035420")
 daily_collector.read_stock_data()
+
+hourly_collector = HourlyCollector("035420")
+hourly_collector.read_stock_data()
