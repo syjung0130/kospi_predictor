@@ -46,6 +46,10 @@ KOSPI 가격을 예측하는 프로그램.
     - 데이터를 읽어서 해당 시점에 대한 차트 상태(고점/저점/상향/하향) 정보 colum 추가
     - 차트 상태(고점/저점/상향/하향)정보에 따라 투자 결정(매도/매수/관망)을 판단해서 colum 추가(데이터 라벨링)
     
+  * refactoring(TODO)
+    - datetime 연동부를 별도의 Helper모듈로 구현(time 관련 로직을 한군데서 수정할 수 있도록)
+    - ICollector Interface 구현
+    
   * 참고 자료
     - db browser util: https://sqlitebrowser.org/
     - pandas-reader 사용방법 참고(yahoo 일봉 data): https://wikidocs.net/5753
