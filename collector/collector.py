@@ -20,16 +20,16 @@ naver finance crawling
  - to collect price every hour
 '''
 class HourlyCollector:
-    def __init__(self, code):
+    def __init__(self, code, start_time, end_time):
         if(type(code) is str):
             self.str_code = code
         else:
             self.str_code = str(code)
         
-        self.start_time = datetime.datetime(2019, 7, 11, 9, 10, 00)
-        self.end_time = datetime.datetime(2019, 7, 11, 15, 30, 00)
-        self.set_base_time(self.start_time)
-        self.set_url(self.start_time)
+        self.set_start_time(start_time)
+        self.set_end_time(end_time)
+        self.set_base_time(self.get_start_time())
+        self.set_url(self.get_end_time())
         self.time_table = collections.OrderedDict()
         self.volume_table = collections.OrderedDict()
 
@@ -37,10 +37,20 @@ class HourlyCollector:
         self.base_time = time
 
     def get_base_time_str(self):
-        base_time_str = self.get_time_str(self.base_time)
-        # nowDatetime = self.base_time.strftime('%Y%m%d%H%M%S')
-        return base_time_str
+        return self.get_time_str(self.base_time)
+
+    def set_start_time(self, time):
+        self.start_time = time
     
+    def set_end_time(self, time):
+        self.end_time = time
+
+    def get_start_time(self):
+        return self.start_time
+    
+    def get_end_time(self):
+        return self.end_time
+
     def get_time_str(self, time):
         return time.strftime('%Y%m%d%H%M%S')
 
@@ -130,33 +140,54 @@ class HourlyCollector:
         # print("volume table dict: {}".format(self.volume_table))
     
     def read_stock_data(self):
-        count = 6*6+2
-        print("count : {}".format(count))
-        temp_time = self.start_time
-
-        for i in range(count):
+        temp_time = self.get_start_time()
+        while(temp_time < self.get_end_time()):
             print('current time: {}'.format(self.get_time_str(temp_time)))
             self.set_url(temp_time)
             self.get_html_page()
             self.update_price()
+
             ten_minute = datetime.timedelta(minutes=10)
             temp_time = temp_time + ten_minute
-            
+            if (temp_time.hour == self.get_end_time().hour) and (temp_time.minute >= self.get_end_time().minute):
+                if(temp_time.day == self.get_end_time().day):
+                    return
+                if (temp_time.weekday() >= 4):
+                    day_offset = datetime.timedelta(days=3)
+                else:
+                    day_offset = datetime.timedelta(days=1)
+                
+                temp_time = temp_time + day_offset
+                temp_time = datetime.datetime(temp_time.year, temp_time.month, temp_time.day, 9, 10)
 
 '''
 yahoo finance + pandas datareader
  - to collect price every day
 '''
 class DailyCollector:
-    def __init__(self, code):
+    def __init__(self, code, start_time, end_time):
         if(type(code) is str):
             self.code = code
         else:
             self.code = str(code)
+        self.start_time = start_time
+        self.end_time = end_time
     
+    def set_start_time(self, time):
+        self.start_time = time
+    
+    def set_end_time(self, time):
+        self.end_time = time
+
+    def get_start_time(self):
+        return self.start_time
+    
+    def get_end_time(self):
+        return self.end_time
+
     def read_stock_data(self):
-        start = datetime.datetime(2009, 5, 1)
-        end = datetime.datetime(2019, 6, 20)
+        start = self.get_start_time()
+        end = self.get_end_time()
         self.web_data_frame = pd_reader.DataReader(self.code+".KS", "yahoo", start, end)
 
         # print('==== stock data info from web =====')
@@ -176,8 +207,12 @@ class KospiDBManager:
         print('==== readed stock data info =====')
         print(self.read_data_frame.head)
 
-daily_collector = DailyCollector("035420")
+start_time = datetime.datetime(2009, 5, 1)
+end_time = datetime.datetime(2019, 6, 20)
+daily_collector = DailyCollector("035420", start_time, end_time)
 daily_collector.read_stock_data()
 
-hourly_collector = HourlyCollector("035420")
+start_time = datetime.datetime(2019, 7, 11, 9, 10, 00)
+end_time = datetime.datetime(2019, 7, 18, 15, 30, 00)
+hourly_collector = HourlyCollector("035420", start_time, end_time)
 hourly_collector.read_stock_data()
