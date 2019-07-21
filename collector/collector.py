@@ -15,6 +15,7 @@ import threading
 import re
 import collections
 from timeutill_helper import TimeUtillHelper
+from kospi_db_manager import KospiDBManager
 
 class Collector:
     def __init__(self, code, start_time, end_time):
@@ -163,27 +164,20 @@ yahoo finance + pandas datareader
 class DailyCollector(Collector):
     def __init__(self, code, start_time, end_time):
         Collector.__init__(self, code, start_time, end_time)
+        self.db_manager = KospiDBManager(self.str_code)
 
     def read_stock_data(self):
         start = self.get_start_time().get_datetime()
         end = self.get_end_time().get_datetime()
         self.web_data_frame = pd_reader.DataReader(self.str_code+".KS", "yahoo", start, end)
+        self.write_db_from_web_api_data(self.web_data_frame)
 
-        # print('==== stock data info from web =====')
-        # print(self.web_data_frame.head)
-        self.kospi_data = KospiDBManager(self.str_code)
-        self.kospi_data.read_web_api_data(self.web_data_frame)
-
-class KospiDBManager:
-    def __init__(self, code):
-        self.con = sqlite3.connect("./kospi.db")
-        self.code = code
-
-    def read_web_api_data(self, web_data_frame):
-        web_data_frame.to_sql(self.code, self.con, if_exists='replace')
-        self.read_data_frame = pd.read_sql("SELECT * FROM '{}'".format(self.code), self.con, index_col = 'Date')
+    def write_db_from_web_api_data(self, web_data_frame):
+        connection = self.db_manager.get_connection()
+        web_data_frame.to_sql(self.str_code, connection, if_exists='replace')
         print('==== readed stock data info =====')
-        print(self.read_data_frame.head)
+        kospi_db = pd.read_sql("SELECT * FROM '{}'".format(self.str_code), connection, index_col = 'Date')
+        print(kospi_db.head)
 
 start_time = TimeUtillHelper(2009, 5, 1)
 end_time = TimeUtillHelper(2019, 6, 20)
