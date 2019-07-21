@@ -16,26 +16,15 @@ import re
 import collections
 from timeutill_helper import TimeUtillHelper
 
-'''
-naver finance crawling
- - to collect price every hour
-'''
-class HourlyCollector:
+class Collector:
     def __init__(self, code, start_time, end_time):
         if(type(code) is str):
             self.str_code = code
         else:
             self.str_code = str(code)
-        
         self.set_start_time(start_time)
         self.set_end_time(end_time)
-        self.set_base_time(start_time)
-        self.time_table = collections.OrderedDict()
-        self.volume_table = collections.OrderedDict()
-
-    def set_base_time(self, time):
-        self.base_time = time
-
+    
     def set_start_time(self, time):
         self.start_time = time
     
@@ -47,6 +36,23 @@ class HourlyCollector:
     
     def get_end_time(self):
         return self.end_time
+    
+    def get_code(self):
+        return self.str_code
+
+'''
+naver finance crawling
+ - to collect price every hour
+'''
+class HourlyCollector(Collector):
+    def __init__(self, code, start_time, end_time):
+        Collector.__init__(self, code, start_time, end_time)
+        self.set_base_time(start_time)
+        self.time_table = collections.OrderedDict()
+        self.volume_table = collections.OrderedDict()
+
+    def set_base_time(self, time):
+        self.base_time = time
 
     def set_url(self, time):
         '''
@@ -150,38 +156,22 @@ class HourlyCollector:
                 #다음 날의 주식시장 시작시간 또는, 월요일 주식시장의 시작시간으로 set한다.
                 temp_time.set_time(temp_time.get_year(), temp_time.get_month(), temp_time.get_day(), 9, 10)
 
-# yahoo finance + pandas datareader
-#  - to collect price every day
-class DailyCollector:
+'''
+yahoo finance + pandas datareader
+ - to collect price every day
+'''
+class DailyCollector(Collector):
     def __init__(self, code, start_time, end_time):
-        if(type(code) is str):
-            self.code = code
-        else:
-            self.code = str(code)
-        self.set_start_time(start_time)
-        self.set_end_time(end_time)
-    
-    def set_start_time(self, time):
-        self.start_time = time
-    
-    def set_end_time(self, time):
-        self.end_time = time
-
-    def get_start_time(self):
-        return self.start_time
-    
-    def get_end_time(self):
-        return self.end_time
+        Collector.__init__(self, code, start_time, end_time)
 
     def read_stock_data(self):
         start = self.get_start_time().get_datetime()
         end = self.get_end_time().get_datetime()
-        self.web_data_frame = pd_reader.DataReader(self.code+".KS", "yahoo", start, end)
+        self.web_data_frame = pd_reader.DataReader(self.str_code+".KS", "yahoo", start, end)
 
         # print('==== stock data info from web =====')
         # print(self.web_data_frame.head)
-
-        self.kospi_data = KospiDBManager(self.code)
+        self.kospi_data = KospiDBManager(self.str_code)
         self.kospi_data.read_web_api_data(self.web_data_frame)
 
 class KospiDBManager:
