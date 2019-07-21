@@ -14,6 +14,7 @@ import sqlite3
 import threading
 import re
 import collections
+from timeutill_helper import TimeUtillHelper
 
 '''
 naver finance crawling
@@ -28,16 +29,12 @@ class HourlyCollector:
         
         self.set_start_time(start_time)
         self.set_end_time(end_time)
-        self.set_base_time(self.get_start_time())
-        self.set_url(self.get_end_time())
+        self.set_base_time(start_time)
         self.time_table = collections.OrderedDict()
         self.volume_table = collections.OrderedDict()
 
     def set_base_time(self, time):
         self.base_time = time
-
-    def get_base_time_str(self):
-        return self.get_time_str(self.base_time)
 
     def set_start_time(self, time):
         self.start_time = time
@@ -51,17 +48,13 @@ class HourlyCollector:
     def get_end_time(self):
         return self.end_time
 
-    def get_time_str(self, time):
-        return time.strftime('%Y%m%d%H%M%S')
-
     def set_url(self, time):
         '''
         https://finance.naver.com/item/sise_time.nhn?code=035420&amp&thistime=20190621130000&amp&page=1
         '''
         self.str_search_base = "https://finance.naver.com"
         self.set_base_time(time)
-
-        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime={}&amp&page=1".format(self.str_code, self.get_base_time_str())
+        self.str_item_page = "/item/sise_time.nhn?code={}&amp&thistime={}&amp&page=1".format(self.str_code, self.base_time.get_time_str())
         self.str_total_word = self.str_search_base + self.str_item_page
         print(self.str_total_word)
 
@@ -127,51 +120,46 @@ class HourlyCollector:
     def update_prices_in_ten_minutes(self, price_list, volume_list, time):
         cur_time = time
         for item in list(reversed(price_list)):
-            self.time_table[cur_time] = int(item)
-            one_minute = datetime.timedelta(minutes=1)
-            cur_time = cur_time + one_minute
+            self.time_table[cur_time.get_datetime()] = int(item)
+            cur_time.add_minutes(1)
         # print("time table dict: {}".format(self.time_table))
         
         cur_time = time
         for item in list(reversed(volume_list)):
-            self.volume_table[cur_time] = int(item)
-            one_minute = datetime.timedelta(minutes=1)
-            cur_time = cur_time + one_minute
+            self.volume_table[cur_time.get_datetime()] = int(item)
+            cur_time.add_minutes(1)
         # print("volume table dict: {}".format(self.volume_table))
     
     def read_stock_data(self):
         temp_time = self.get_start_time()
         while(temp_time < self.get_end_time()):
-            print('current time: {}'.format(self.get_time_str(temp_time)))
+            print('current time : {}'.format(temp_time.get_time_str()))
             self.set_url(temp_time)
             self.get_html_page()
             self.update_price()
-
-            ten_minute = datetime.timedelta(minutes=10)
-            temp_time = temp_time + ten_minute
-            if (temp_time.hour == self.get_end_time().hour) and (temp_time.minute >= self.get_end_time().minute):
-                if(temp_time.day == self.get_end_time().day):
+            temp_time.add_minutes(10)
+            #하루의 주식 시장 종료 시간까지 갔을 경우, 순회를 위해 temp_time을 다음날의 첫 시간으로 설정한다.
+            if ((temp_time.get_hour() == self.get_end_time().get_hour()) and (temp_time.get_minute() >= self.get_end_time().get_minute())):
+                if(temp_time.get_day() == self.get_end_time().get_day()):#end_date일 경우, 빠져나감
                     return
-                if (temp_time.weekday() >= 4):
-                    day_offset = datetime.timedelta(days=3)
+                if (temp_time.get_weekday() >= 4):#금요일일 경우, 토,일요일을 skip, 날짜를 월요일로 jump
+                    temp_time.add_days(3)
                 else:
-                    day_offset = datetime.timedelta(days=1)
+                    temp_time.add_days(1)#금요일이 아닐 경우, 날짜를 다음 날로 jump
                 
-                temp_time = temp_time + day_offset
-                temp_time = datetime.datetime(temp_time.year, temp_time.month, temp_time.day, 9, 10)
+                #다음 날의 주식시장 시작시간 또는, 월요일 주식시장의 시작시간으로 set한다.
+                temp_time.set_time(temp_time.get_year(), temp_time.get_month(), temp_time.get_day(), 9, 10)
 
-'''
-yahoo finance + pandas datareader
- - to collect price every day
-'''
+# yahoo finance + pandas datareader
+#  - to collect price every day
 class DailyCollector:
     def __init__(self, code, start_time, end_time):
         if(type(code) is str):
             self.code = code
         else:
             self.code = str(code)
-        self.start_time = start_time
-        self.end_time = end_time
+        self.set_start_time(start_time)
+        self.set_end_time(end_time)
     
     def set_start_time(self, time):
         self.start_time = time
@@ -186,8 +174,8 @@ class DailyCollector:
         return self.end_time
 
     def read_stock_data(self):
-        start = self.get_start_time()
-        end = self.get_end_time()
+        start = self.get_start_time().get_datetime()
+        end = self.get_end_time().get_datetime()
         self.web_data_frame = pd_reader.DataReader(self.code+".KS", "yahoo", start, end)
 
         # print('==== stock data info from web =====')
@@ -207,12 +195,12 @@ class KospiDBManager:
         print('==== readed stock data info =====')
         print(self.read_data_frame.head)
 
-start_time = datetime.datetime(2009, 5, 1)
-end_time = datetime.datetime(2019, 6, 20)
+start_time = TimeUtillHelper(2009, 5, 1)
+end_time = TimeUtillHelper(2019, 6, 20)
 daily_collector = DailyCollector("035420", start_time, end_time)
 daily_collector.read_stock_data()
 
-start_time = datetime.datetime(2019, 7, 11, 9, 10, 00)
-end_time = datetime.datetime(2019, 7, 18, 15, 30, 00)
+start_time = TimeUtillHelper(2019, 7, 11, 9, 10, 00)
+end_time = TimeUtillHelper(2019, 7, 18, 15, 30, 00)
 hourly_collector = HourlyCollector("035420", start_time, end_time)
 hourly_collector.read_stock_data()
