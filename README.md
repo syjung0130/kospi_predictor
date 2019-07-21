@@ -47,8 +47,9 @@ KOSPI 가격을 예측하는 프로그램.
     - 차트 상태(고점/저점/상향/하향)정보에 따라 투자 결정(매도/매수/관망)을 판단해서 colum 추가(데이터 라벨링)
     
   * refactoring(TODO)
-    - datetime 연동부를 별도의 Helper모듈로 구현(time 관련 로직을 한군데서 수정할 수 있도록)
-    - ICollector Interface 구현
+    - datetime 연동부를 별도의 Helper모듈로 구현(time 관련 로직을 한군데서 수정할 수 있도록): 완료
+    - Collector Base class 구현: 완료
+    - Database 재가공부를 별도의 모듈로 분리하여 구현: TODO
     
   * 참고 자료
     - db browser util: https://sqlitebrowser.org/
