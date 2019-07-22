@@ -18,6 +18,24 @@ docker build -t scrapper:imx-1 .
  (특정 이미지를 삭제)  
  docker rmi 이미지id  
 
+## virtualenv 실행 방법
+ - virtualenv 패키지 설치
+ cd virtualenv
+ pip3 install virtualenv
+
+ - virtualenv 실행
+ virtualenv venv
+ source venv/bin/activate
+
+ - virtualenv 상에서 필요한 패키지 설치
+ pip3 install -r requirements.txt
+
+ - 추가로 설치한 패키지가 있다면 설치된 패키지 추출
+ pip3 freeze > requirements.txt
+
+ - virtualenv 종료
+ deactivate
+
 ## 개요
 KOSPI 가격을 예측하는 프로그램.
 

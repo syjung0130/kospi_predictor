@@ -19,6 +19,8 @@ RUN pip3 install --upgrade pip
 RUN pip3 install requests
 RUN apt-get install -y python3-bs4
 
+RUN pip3 install virtualenv
+
 # install pandas_datareader
 RUN pip3 install pandas-datareader
 
