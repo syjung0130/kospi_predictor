@@ -2,3 +2,6 @@
 build/kospi.db
 build
 venv
+kospi.db
+*.pyc
+__pycache__
