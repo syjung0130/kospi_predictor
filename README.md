@@ -25,8 +25,8 @@ docker build -t scrapper:imx-1 .
 
  - virtualenv 실행  
  virtualenv venv
- (Linux or Mac) : source venv/bin/activate
- (Window)       : venv\Scripts\activate.bat
+ (Linux or Mac) : source venv/bin/activate  
+ (Window)       : venv\Scripts\activate.bat  
  
  - virtualenv 상에서 필요한 패키지 설치  
  pip3 install -r requirements.txt
