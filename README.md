@@ -20,11 +20,11 @@ docker build -t scrapper:imx-1 .
 
 ## virtualenv 실행 방법
  - virtualenv 패키지 설치  
- cd virtualenv
- pip3 install virtualenv
+ cd virtualenv  
+ pip3 install virtualenv  
 
  - virtualenv 실행  
- virtualenv venv
+ virtualenv venv  
  (Linux or Mac) : source venv/bin/activate  
  (Window)       : venv\Scripts\activate.bat  
  
