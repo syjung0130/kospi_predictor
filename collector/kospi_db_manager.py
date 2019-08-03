@@ -16,7 +16,6 @@ class KospiDBManager:
 
     def open_db(self):
         self.connection = sqlite3.connect("./kospi.db")
-        self.pd_kospi_db = pd.read_sql("SELECT * FROM '{}'".format(self.str_code), self.get_connection(), index_col = 'Date')
         self.pd_read_sql("SELECT * FROM '{0}'".format(self.str_code))
     
     def close_db(self):
@@ -32,7 +31,7 @@ class KospiDBManager:
         self.pd_df_kospi_db = pd.read_sql(strQuery, self.get_connection())
 
     def pd_write_db(self):
-        self.pd_df_kospi_db.to_sql('{}_dataset'.format(self.str_code), self.get_connection())
+        self.pd_df_kospi_db.to_sql('{}_day_dataset'.format(self.str_code), self.get_connection())
 
     def add_column(self, strColumn):
         strQuery = "ALTER TABLE '{0}' ADD '{1}' INTEGER".format(self.str_code, strColumn)
