@@ -164,7 +164,8 @@ yahoo finance + pandas datareader
 class DailyCollector(Collector):
     def __init__(self, code, start_time, end_time):
         Collector.__init__(self, code, start_time, end_time)
-        self.db_manager = KospiDBManager(self.str_code)
+        self.table_name = "{}_day".format(self.str_code)
+        self.db_manager = KospiDBManager(self.table_name)
 
     def read_stock_data(self):
         start = self.get_start_time().get_datetime()
@@ -174,9 +175,9 @@ class DailyCollector(Collector):
 
     def write_db_from_web_api_data(self, web_data_frame):
         connection = self.db_manager.get_connection()
-        web_data_frame.to_sql(self.str_code, connection, if_exists='replace')
+        web_data_frame.to_sql(self.table_name, connection, if_exists='replace')
         print('==== readed stock data info =====')
-        kospi_db = pd.read_sql("SELECT * FROM '{}'".format(self.str_code), connection, index_col = 'Date')
+        kospi_db = pd.read_sql("SELECT * FROM '{}'".format(self.table_name), connection, index_col = 'Date')
         print(kospi_db.head)
 
 start_time = TimeUtillHelper(2009, 5, 1)
@@ -184,7 +185,7 @@ end_time = TimeUtillHelper(2019, 6, 20)
 daily_collector = DailyCollector("035420", start_time, end_time)
 daily_collector.read_stock_data()
 
-start_time = TimeUtillHelper(2019, 7, 11, 9, 10, 00)
-end_time = TimeUtillHelper(2019, 7, 18, 15, 30, 00)
+start_time = TimeUtillHelper(2019, 7, 29, 9, 10, 00)
+end_time = TimeUtillHelper(2019, 8, 2, 15, 30, 00)
 hourly_collector = HourlyCollector("035420", start_time, end_time)
 hourly_collector.read_stock_data()

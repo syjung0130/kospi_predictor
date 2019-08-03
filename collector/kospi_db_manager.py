@@ -9,14 +9,14 @@ class eGradientStatus(enum.IntEnum):
     INFLECTION = 2
 
 class KospiDBManager:
-    def __init__(self, code):
-        self.str_code = code
+    def __init__(self, table_name):
+        self.table = table_name
         self.open_db()
         self.day_interval = 1
 
     def open_db(self):
         self.connection = sqlite3.connect("./kospi.db")
-        self.pd_read_sql("SELECT * FROM '{0}'".format(self.str_code))
+        print('[check] table name: {}'.format(self.table))
     
     def close_db(self):
         self.connection.close()
@@ -31,16 +31,16 @@ class KospiDBManager:
         self.pd_df_kospi_db = pd.read_sql(strQuery, self.get_connection())
 
     def pd_write_db(self):
-        self.pd_df_kospi_db.to_sql('{}_day_dataset'.format(self.str_code), self.get_connection())
+        self.pd_df_kospi_db.to_sql('{}_day_dataset'.format(self.table), self.get_connection())
 
     def add_column(self, strColumn):
-        strQuery = "ALTER TABLE '{0}' ADD '{1}' INTEGER".format(self.str_code, strColumn)
+        strQuery = "ALTER TABLE '{0}' ADD '{1}' INTEGER".format(self.table, strColumn)
         self.connection.execute(strQuery)
         self.apply_to_db()
 
     def add_labelled_data(self):
         print('===== add_labelled_data() =====')
-        self.pd_read_sql("SELECT * FROM '{0}'".format(self.str_code))
+        self.pd_read_sql("SELECT * FROM '{0}'".format(self.table))
         self.add_gradient()
         self.add_price_status()
         self.pd_write_db()
@@ -74,7 +74,7 @@ class KospiDBManager:
         self.open_db()
         self.add_labelled_data()
 
-# kospi_db_manager 검증용 코드
-str_code = "035420"
-db_manager = KospiDBManager(str_code)
-db_manager.check_kospi_db()
+# # kospi_db_manager 검증용 코드
+# str_code = "035420_day"
+# db_manager = KospiDBManager(str_code)
+# db_manager.check_kospi_db()
