@@ -27,16 +27,19 @@ class KospiDBManager:
     def get_connection(self):
         return self.connection
 
+    def add_column(self, strColumn):
+        strQuery = "ALTER TABLE '{0}' ADD '{1}' INTEGER".format(self.table, strColumn)
+        self.connection.execute(strQuery)
+        self.apply_to_db()
+    
+    def execute_query(self, strQuery):
+        self.connection.execute(strQuery)
+
     def pd_read_sql(self, strQuery):
         self.pd_df_kospi_db = pd.read_sql(strQuery, self.get_connection())
 
     def pd_write_db(self):
         self.pd_df_kospi_db.to_sql('{}_day_dataset'.format(self.table), self.get_connection())
-
-    def add_column(self, strColumn):
-        strQuery = "ALTER TABLE '{0}' ADD '{1}' INTEGER".format(self.table, strColumn)
-        self.connection.execute(strQuery)
-        self.apply_to_db()
 
     def add_labelled_data(self):
         print('===== add_labelled_data() =====')

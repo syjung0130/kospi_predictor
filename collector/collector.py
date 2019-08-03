@@ -49,7 +49,7 @@ class HourlyCollector(Collector):
     def __init__(self, code, start_time, end_time):
         Collector.__init__(self, code, start_time, end_time)
         self.set_base_time(start_time)
-        self.time_table = collections.OrderedDict()
+        self.price_table = collections.OrderedDict()
         self.volume_table = collections.OrderedDict()
 
     def set_base_time(self, time):
@@ -87,7 +87,7 @@ class HourlyCollector(Collector):
             print(e.code)
     
     def update_price(self):
-        print('[DailyCollecotr][update_price] ')
+        print('[HourlyCollector][update_price] ')
         # BeautifulSoup으로 html소스를 python객체로 변환한다, 첫 인자는 html소스코드, 두 번째 인자는 어떤 parser를 이용할지 명시.
         self.soup = BeautifulSoup(self.html, 'html.parser')
 
@@ -127,13 +127,13 @@ class HourlyCollector(Collector):
     def update_prices_in_ten_minutes(self, price_list, volume_list, time):
         cur_time = time
         for item in list(reversed(price_list)):
-            self.time_table[cur_time.get_datetime()] = int(item)
+            self.price_table[cur_time.get_datetime()] = float(item)
             cur_time.add_minutes(1)
         # print("time table dict: {}".format(self.time_table))
         
         cur_time = time
         for item in list(reversed(volume_list)):
-            self.volume_table[cur_time.get_datetime()] = int(item)
+            self.volume_table[cur_time.get_datetime()] = float(item)
             cur_time.add_minutes(1)
         # print("volume table dict: {}".format(self.volume_table))
     
@@ -156,6 +156,45 @@ class HourlyCollector(Collector):
                 
                 #다음 날의 주식시장 시작시간 또는, 월요일 주식시장의 시작시간으로 set한다.
                 temp_time.set_time(temp_time.get_year(), temp_time.get_month(), temp_time.get_day(), 9, 10)
+        
+    def update_db(self):
+        self.table_name = "{}_hour".format(self.str_code)
+        self.db_manager = KospiDBManager(self.table_name)
+
+        #2009-05-04 00:00:00, 실수:8자리 + 소수8자리
+        str_query = "CREATE TABLE '{0}' (Date WCHAR(19), Close FLOAT(16, 8), BasePrice FLOAT(16,8), Volume FLOAT(16,1))".format(self.table_name)
+        self.db_manager.execute_query(str_query)
+        self.db_manager.apply_to_db()
+
+        price_table_keys = list(self.price_table.keys())
+        volume_table_keys = list(self.volume_table.keys())
+        print('type price:{0}, volume:{1}'.format(type(price_table_keys[0]), type(volume_table_keys[0])))
+        for i, date_item in enumerate(price_table_keys):
+            date_item_str = date_item.replace(microsecond=0).isoformat().replace('T',' ')
+            str_query = "INSERT INTO '{0}'(Date, Close, BasePrice) VALUES ('{1}', {2}, {3})".format(\
+                self.table_name, \
+                date_item_str, \
+                self.price_table[date_item], \
+                self.price_table[date_item],
+                )
+            print(str_query)
+            # cursor = self.db_manager.get_connection().cursor()
+            # cursor.execute(str_query)
+            self.db_manager.execute_query(str_query)
+            self.db_manager.apply_to_db()
+        
+        for i, date_item in enumerate(volume_table_keys):
+            date_item_str = date_item.replace(microsecond=0).isoformat().replace('T',' ')
+            str_query = "INSERT INTO '{0}' (Volume) VALUES ({1})".format(\
+                self.table_name, \
+                self.volume_table[date_item] \
+                )
+            print(str_query)
+            # cursor = self.db_manager.get_connection().cursor()
+            # cursor.execute(str_query)
+            self.db_manager.execute_query(str_query)
+            self.db_manager.apply_to_db()
+
 
 '''
 yahoo finance + pandas datareader
@@ -164,8 +203,6 @@ yahoo finance + pandas datareader
 class DailyCollector(Collector):
     def __init__(self, code, start_time, end_time):
         Collector.__init__(self, code, start_time, end_time)
-        self.table_name = "{}_day".format(self.str_code)
-        self.db_manager = KospiDBManager(self.table_name)
 
     def read_stock_data(self):
         start = self.get_start_time().get_datetime()
@@ -174,6 +211,8 @@ class DailyCollector(Collector):
         self.write_db_from_web_api_data(self.web_data_frame)
 
     def write_db_from_web_api_data(self, web_data_frame):
+        self.table_name = "{}_day".format(self.str_code)
+        self.db_manager = KospiDBManager(self.table_name)
         connection = self.db_manager.get_connection()
         web_data_frame.to_sql(self.table_name, connection, if_exists='replace')
         print('==== readed stock data info =====')
@@ -189,3 +228,4 @@ start_time = TimeUtillHelper(2019, 7, 29, 9, 10, 00)
 end_time = TimeUtillHelper(2019, 8, 2, 15, 30, 00)
 hourly_collector = HourlyCollector("035420", start_time, end_time)
 hourly_collector.read_stock_data()
+hourly_collector.update_db()
