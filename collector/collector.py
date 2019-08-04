@@ -126,17 +126,12 @@ class HourlyCollector(Collector):
 
     def update_prices_in_ten_minutes(self, price_list, volume_list, time):
         cur_time = time
-        for item in list(reversed(price_list)):
-            self.price_table[cur_time.get_datetime()] = float(item)
+        for price_item, volume_item in zip(reversed(price_list), reversed(volume_list)):
+            self.price_table[cur_time.get_datetime()] = float(price_item)
+            self.volume_table[cur_time.get_datetime()] = float(volume_item)
+            # print('cur time: {0}'.format(cur_time.get_datetime().replace(microsecond=0).isoformat().replace('T',' ')))
             cur_time.add_minutes(1)
-        # print("time table dict: {}".format(self.time_table))
-        
-        cur_time = time
-        for item in list(reversed(volume_list)):
-            self.volume_table[cur_time.get_datetime()] = float(item)
-            cur_time.add_minutes(1)
-        # print("volume table dict: {}".format(self.volume_table))
-    
+
     def read_stock_data(self):
         temp_time = self.get_start_time()
         while(temp_time < self.get_end_time()):
@@ -144,7 +139,7 @@ class HourlyCollector(Collector):
             self.set_url(temp_time)
             self.get_html_page()
             self.update_price()
-            temp_time.add_minutes(10)
+            # temp_time.add_minutes(10) ## update_price_in_ten_minutes()에서 1씩 10을 더한다.. 객체를 복사해서 쓰던가 여기서 더하지 말든가 결정해야한다.
             #하루의 주식 시장 종료 시간까지 갔을 경우, 순회를 위해 temp_time을 다음날의 첫 시간으로 설정한다.
             if ((temp_time.get_hour() == self.get_end_time().get_hour()) and (temp_time.get_minute() >= self.get_end_time().get_minute())):
                 if(temp_time.get_day() == self.get_end_time().get_day()):#end_date일 경우, 빠져나감
@@ -161,7 +156,7 @@ class HourlyCollector(Collector):
         self.table_name = "{}_hour".format(self.str_code)
         self.db_manager = KospiDBManager(self.table_name)
 
-        #2009-05-04 00:00:00, 실수:8자리 + 소수8자리
+        #2009-05-04 00:00:00(19자리), 가격(실수:16자리 중 소수8자리), 거래량(실수:16자리 중 소수 1자리)
         str_query = "CREATE TABLE '{0}' (Date WCHAR(19), Close FLOAT(16, 8), BasePrice FLOAT(16,8), Volume FLOAT(16,1))".format(self.table_name)
         self.db_manager.execute_query(str_query)
         self.db_manager.apply_to_db()
@@ -178,20 +173,16 @@ class HourlyCollector(Collector):
                 self.price_table[date_item],
                 )
             print(str_query)
-            # cursor = self.db_manager.get_connection().cursor()
-            # cursor.execute(str_query)
             self.db_manager.execute_query(str_query)
             self.db_manager.apply_to_db()
         
         for i, date_item in enumerate(volume_table_keys):
             date_item_str = date_item.replace(microsecond=0).isoformat().replace('T',' ')
-            str_query = "INSERT INTO '{0}' (Volume) VALUES ({1})".format(\
-                self.table_name, \
-                self.volume_table[date_item] \
-                )
+            str_query = "UPDATE '{0}' SET Volume = {1} WHERE Date = '{2}'".format(\
+                self.table_name,\
+                self.volume_table[date_item],\
+                date_item_str)
             print(str_query)
-            # cursor = self.db_manager.get_connection().cursor()
-            # cursor.execute(str_query)
             self.db_manager.execute_query(str_query)
             self.db_manager.apply_to_db()
 
