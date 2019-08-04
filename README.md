@@ -79,7 +79,7 @@ KOSPI 가격을 예측하는 프로그램.
     - 분 단위의 주식 정보를 Database에 업데이트 하는 부분(update_db())를 KospiDBManager로 이동: 완료  
     - 일단위 테이블의 컬럼 중 Close를 복사해서 'BasePrice'컬럼에 복사(새로 생성 후): TODO  
     - 일단위 테이블의 컬럼 중 Close 컬럼대신 BasePrice를 사용해서 Gradient, PriceStatus를 갱신하도록 수정: TODO  
-    - Collector클래스를 Interface로 변경(polymorphism): TODO
+    - ICollector 추가(polymorphism): TODO
     
   * 참고 자료
     - db browser util: https://sqlitebrowser.org/
