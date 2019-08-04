@@ -152,39 +152,10 @@ class HourlyCollector(Collector):
                 #다음 날의 주식시장 시작시간 또는, 월요일 주식시장의 시작시간으로 set한다.
                 temp_time.set_time(temp_time.get_year(), temp_time.get_month(), temp_time.get_day(), 9, 10)
         
-    def update_db(self):
+    def update_stock_database(self):
         self.table_name = "{}_hour".format(self.str_code)
         self.db_manager = KospiDBManager(self.table_name)
-
-        #2009-05-04 00:00:00(19자리), 가격(실수:16자리 중 소수8자리), 거래량(실수:16자리 중 소수 1자리)
-        str_query = "CREATE TABLE '{0}' (Date WCHAR(19), Close FLOAT(16, 8), BasePrice FLOAT(16,8), Volume FLOAT(16,1))".format(self.table_name)
-        self.db_manager.execute_query(str_query)
-        self.db_manager.apply_to_db()
-
-        price_table_keys = list(self.price_table.keys())
-        volume_table_keys = list(self.volume_table.keys())
-        print('type price:{0}, volume:{1}'.format(type(price_table_keys[0]), type(volume_table_keys[0])))
-        for price_date, volume_date in zip(price_table_keys, volume_table_keys):
-            price_date_str = price_date.replace(microsecond=0).isoformat().replace('T',' ')
-            str_query = "INSERT INTO '{0}'(Date, Close, BasePrice) VALUES ('{1}', {2}, {3})".format(\
-                self.table_name, \
-                price_date_str, \
-                self.price_table[price_date], \
-                self.price_table[price_date],
-                )
-            # print(str_query)
-            self.db_manager.execute_query(str_query)
-            self.db_manager.apply_to_db()
-
-            volume_date_str = volume_date.replace(microsecond=0).isoformat().replace('T',' ')
-            str_query = "UPDATE '{0}' SET Volume = {1} WHERE Date = '{2}'".format(\
-                self.table_name,\
-                self.volume_table[volume_date],\
-                volume_date_str)
-            # print(str_query)
-            self.db_manager.execute_query(str_query)
-            self.db_manager.apply_to_db()
-
+        self.db_manager.update_hour_db(self.price_table, self.volume_table)
 
 '''
 yahoo finance + pandas datareader
@@ -198,24 +169,27 @@ class DailyCollector(Collector):
         start = self.get_start_time().get_datetime()
         end = self.get_end_time().get_datetime()
         self.web_data_frame = pd_reader.DataReader(self.str_code+".KS", "yahoo", start, end)
-        self.write_db_from_web_api_data(self.web_data_frame)
 
     def write_db_from_web_api_data(self, web_data_frame):
         self.table_name = "{}_day".format(self.str_code)
         self.db_manager = KospiDBManager(self.table_name)
-        connection = self.db_manager.get_connection()
-        web_data_frame.to_sql(self.table_name, connection, if_exists='replace')
-        print('==== readed stock data info =====')
-        kospi_db = pd.read_sql("SELECT * FROM '{}'".format(self.table_name), connection, index_col = 'Date')
-        print(kospi_db.head)
+        self.db_manager.update_day_db(web_data_frame)
+
+    def update_stock_database(self):
+        self.write_db_from_web_api_data(self.web_data_frame)
+
+    def update_labelled_database(self):
+        self.db_manager.add_labelled_data()
 
 start_time = TimeUtillHelper(2009, 5, 1)
 end_time = TimeUtillHelper(2019, 6, 20)
 daily_collector = DailyCollector("035420", start_time, end_time)
 daily_collector.read_stock_data()
+daily_collector.update_stock_database()
+daily_collector.update_labelled_database()
 
 start_time = TimeUtillHelper(2019, 7, 29, 9, 10, 00)
 end_time = TimeUtillHelper(2019, 8, 2, 15, 30, 00)
 hourly_collector = HourlyCollector("035420", start_time, end_time)
 hourly_collector.read_stock_data()
-hourly_collector.update_db()
+hourly_collector.update_stock_database()
