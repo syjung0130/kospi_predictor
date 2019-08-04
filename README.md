@@ -70,15 +70,15 @@ KOSPI 가격을 예측하는 프로그램.
     - 시가, 종가, 분 단위 가격, 거래량, 차트 상태(고점/저점/상향/하향), 투자 결정(매도/매수/관망)
     - 데이터를 읽어서 해당 시점에 대한 차트 상태(고점/저점/상향/하향) 정보 colum 추가
     - 차트 상태(고점/저점/상향/하향)정보에 따라 투자 결정(매도/매수/관망)을 판단해서 colum 추가(데이터 라벨링)
-    - 일단위의 재가공 기능은 구현 완료, 분 단위의 재가공 기능 구현 얘정
+    - 일단위의 재가공 기능은 구현 완료, 분 단위의 재가공 기능 구현 완료
     
   * refactoring(완료)
     - datetime 연동부를 별도의 Helper모듈로 구현(time 관련 로직을 한군데서 수정할 수 있도록): 완료  
     - Collector Base class 구현: 완료  
     - Database 재가공부를 별도의 모듈로 분리: 완료  
-    - 분 단위의 주식 정보를 Database에 업데이트 하는 부분(update_db())를 KospiDBManager로 이동(TODO)  
-    - 일단위 테이블의 컬럼 중 Close를 복사해서 'BasePrice'컬럼에 복사(새로 생성 후)(TODO)  
-    - 일단위 테이블의 컬럼 중 Close 컬럼대신 BasePrice를 사용해서 Gradient, PriceStatus를 갱신하도록 수정(TODO)  
+    - 분 단위의 주식 정보를 Database에 업데이트 하는 부분(update_db())를 KospiDBManager로 이동: 완료  
+    - 일단위 테이블의 컬럼 중 Close를 복사해서 'BasePrice'컬럼에 복사(새로 생성 후): TODO  
+    - 일단위 테이블의 컬럼 중 Close 컬럼대신 BasePrice를 사용해서 Gradient, PriceStatus를 갱신하도록 수정: TODO  
     
   * 참고 자료
     - db browser util: https://sqlitebrowser.org/
