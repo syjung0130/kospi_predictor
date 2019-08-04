@@ -139,7 +139,7 @@ class HourlyCollector(Collector):
             self.set_url(temp_time)
             self.get_html_page()
             self.update_price()
-            # temp_time.add_minutes(10) ## update_price_in_ten_minutes()에서 1씩 10을 더한다.. 객체를 복사해서 쓰던가 여기서 더하지 말든가 결정해야한다.
+            # temp_time.add_minutes(10) ## update_price_in_ten_minutes()에서 1씩 10을 더하기 때문에 필요없다..
             #하루의 주식 시장 종료 시간까지 갔을 경우, 순회를 위해 temp_time을 다음날의 첫 시간으로 설정한다.
             if ((temp_time.get_hour() == self.get_end_time().get_hour()) and (temp_time.get_minute() >= self.get_end_time().get_minute())):
                 if(temp_time.get_day() == self.get_end_time().get_day()):#end_date일 경우, 빠져나감
@@ -164,25 +164,24 @@ class HourlyCollector(Collector):
         price_table_keys = list(self.price_table.keys())
         volume_table_keys = list(self.volume_table.keys())
         print('type price:{0}, volume:{1}'.format(type(price_table_keys[0]), type(volume_table_keys[0])))
-        for i, date_item in enumerate(price_table_keys):
-            date_item_str = date_item.replace(microsecond=0).isoformat().replace('T',' ')
+        for price_date, volume_date in zip(price_table_keys, volume_table_keys):
+            price_date_str = price_date.replace(microsecond=0).isoformat().replace('T',' ')
             str_query = "INSERT INTO '{0}'(Date, Close, BasePrice) VALUES ('{1}', {2}, {3})".format(\
                 self.table_name, \
-                date_item_str, \
-                self.price_table[date_item], \
-                self.price_table[date_item],
+                price_date_str, \
+                self.price_table[price_date], \
+                self.price_table[price_date],
                 )
-            print(str_query)
+            # print(str_query)
             self.db_manager.execute_query(str_query)
             self.db_manager.apply_to_db()
-        
-        for i, date_item in enumerate(volume_table_keys):
-            date_item_str = date_item.replace(microsecond=0).isoformat().replace('T',' ')
+
+            volume_date_str = volume_date.replace(microsecond=0).isoformat().replace('T',' ')
             str_query = "UPDATE '{0}' SET Volume = {1} WHERE Date = '{2}'".format(\
                 self.table_name,\
-                self.volume_table[date_item],\
-                date_item_str)
-            print(str_query)
+                self.volume_table[volume_date],\
+                volume_date_str)
+            # print(str_query)
             self.db_manager.execute_query(str_query)
             self.db_manager.apply_to_db()
 
