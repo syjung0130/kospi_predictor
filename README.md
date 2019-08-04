@@ -80,6 +80,7 @@ KOSPI 가격을 예측하는 프로그램.
     - 일단위 테이블의 컬럼 중 Close를 복사해서 'BasePrice'컬럼에 복사(새로 생성 후): TODO  
     - 일단위 테이블의 컬럼 중 Close 컬럼대신 BasePrice를 사용해서 Gradient, PriceStatus를 갱신하도록 수정: TODO  
     - ICollector 추가(polymorphism): TODO
+    - timeutil_helper의 type을 얻어올 수 있도록 구현, __type__ overloading?, or 상속?: TODO
     
   * 참고 자료
     - db browser util: https://sqlitebrowser.org/
