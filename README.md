@@ -99,7 +99,7 @@ KOSPI 가격을 예측하는 프로그램.
   - 이번 한 '주' 단위까지 예측해서 예상 차트 데이터 생성
   - 예측된 주식 가격값을 토대로 1주 뒤까지의 시간마다의 가격을 DB로 저장 (예상차트출력부에서 활용할 수 있도록)
   
- ### 개발 환경(TODO)
+ #### 개발 환경(TODO)
   - Keras + tensorflow 2.0: 초기 구현은 keras로 구현, 모델을 튜닝하면서 필요할 경우 tensorflow를 사용
   - dockerfile, requirments.txt 수정(TODO)
 
