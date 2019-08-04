@@ -79,6 +79,7 @@ KOSPI 가격을 예측하는 프로그램.
     - 분 단위의 주식 정보를 Database에 업데이트 하는 부분(update_db())를 KospiDBManager로 이동: 완료  
     - 일단위 테이블의 컬럼 중 Close를 복사해서 'BasePrice'컬럼에 복사(새로 생성 후): TODO  
     - 일단위 테이블의 컬럼 중 Close 컬럼대신 BasePrice를 사용해서 Gradient, PriceStatus를 갱신하도록 수정: TODO  
+    - Collector클래스를 Interface로 변경(polymorphism): TODO
     
   * 참고 자료
     - db browser util: https://sqlitebrowser.org/
@@ -91,7 +92,11 @@ KOSPI 가격을 예측하는 프로그램.
   - 시가, 종가, 거래량을 토대로 차트를 학습해서 다음 날의 '시' 단위로 가격을 예측
   - 이번 한 '주' 단위까지 예측해서 예상 차트 데이터 생성
   - 예측된 주식 가격값을 토대로 1주 뒤까지의 시간마다의 가격을 DB로 저장 (예상차트출력부에서 활용할 수 있도록)
- #### 상세 요구사항
+  
+ ### 사용환경
+  - Keras + tensorflow 2.0: 초기 구현은 keras로 구현, 모델을 튜닝하면서 필요할 경우 tensorflow를 사용
+
+ #### 상세 기능
   - linear regression을 사용해서 가격을 예측, 예측한 데이터를 Numpy array로 저장
   - linear regression을 통해 학습한 데이터를 통해 매수/매도/관망 등의 분류를 할 수 있도록 다른 모델(RNN or CNN ?)의 입력으로 사용
   - 예측데이터(Numpy array), 매수/매도/관망 을 DB로 생성(차트 출력부에서 확용할 수 있도록)
