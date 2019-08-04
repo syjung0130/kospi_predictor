@@ -157,6 +157,9 @@ class HourlyCollector(Collector):
         self.db_manager = KospiDBManager(self.table_name)
         self.db_manager.update_hour_db(self.price_table, self.volume_table)
 
+    def update_labelled_database(self):
+        self.db_manager.add_labelled_data()
+
 '''
 yahoo finance + pandas datareader
  - to collect price every day
@@ -193,3 +196,4 @@ end_time = TimeUtillHelper(2019, 8, 2, 15, 30, 00)
 hourly_collector = HourlyCollector("035420", start_time, end_time)
 hourly_collector.read_stock_data()
 hourly_collector.update_stock_database()
+hourly_collector.update_labelled_database()

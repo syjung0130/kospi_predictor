@@ -77,15 +77,23 @@ class KospiDBManager:
     def pd_read_sql(self, str_query):
         self.pd_df_kospi_db = pd.read_sql(str_query, self.get_connection())
 
-    def pd_write_db(self):
-        self.pd_df_kospi_db.to_sql('{}_day_dataset'.format(self.table), self.get_connection())
+    def pd_write_db(self, str_table_name):
+        self.pd_df_kospi_db.to_sql(str_table_name, self.get_connection())
     
+    def pd_write_labelled_db(self):
+        if "day" in self.table:
+            self.pd_write_db("{}_dataset".format(self.table))
+        elif "hour" in self.table:
+            self.pd_write_db("{}_dataset".format(self.table))
+        else:
+            print('invalid database')
+
     def add_labelled_data(self):
         print('===== add_labelled_data() =====')
         self.pd_read_sql("SELECT * FROM '{0}'".format(self.table))
         self.add_gradient()
         self.add_price_status()
-        self.pd_write_db()
+        self.pd_write_labelled_db()
     
     def add_gradient(self):
         print('===== add_gradient() =====')
