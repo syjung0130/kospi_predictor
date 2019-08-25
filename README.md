@@ -93,22 +93,25 @@ KOSPI 가격을 예측하는 프로그램.
     - naver web crawling reference html 얻는 방법: finance.naver.com접속 -> 종목코드 입력 -> 차트 아래의 '종합정보' 옆의 '시세 차트 클릭 -> '시간별 시세' 표를 우클릭 후, 프레임소스 보기 클릭
 
   
- ### 주식 가격 훈련, 예측
+ ### 주식 가격 훈련, 예측  
  #### 목표
-  - 시가, 종가, 거래량을 토대로 차트를 학습해서 다음 날의 '시' 단위로 가격을 예측
-  - 이번 한 '주' 단위까지 예측해서 예상 차트 데이터 생성
-  - 예측된 주식 가격값을 토대로 1주 뒤까지의 시간마다의 가격을 DB로 저장 (예상차트출력부에서 활용할 수 있도록)
+  - 선형적으로 가격을 학습, 얘측
+  - 주기를 학습해서 매도/매수/관망을 분류
+  - 선형적인 값 예측과 주기로 상/하향/변곡점 예측할 것인지는 옵션을 사용자가 결정할 수 있도록
   
  #### 개발 환경(TODO)
   - Keras + tensorflow 2.0: 초기 구현은 keras로 구현, 모델을 튜닝하면서 필요할 경우 tensorflow를 사용
-  - dockerfile, requirments.txt 수정(TODO)
+  - virtualenv(완료)
+  - jupyter notebook(virtualenv 환경에서 jupyter notebook을 사용할 수 있도록)
 
  #### 상세 기능(TODO)
-  - linear regression을 사용해서 가격을 예측, 예측한 데이터를 Numpy array로 저장
-  - linear regression을 통해 학습한 데이터를 통해 매수/매도/관망 등의 분류를 할 수 있도록 다른 모델(RNN or CNN ?)의 입력으로 사용
-  - 예측데이터(Numpy array), 매수/매도/관망 을 DB로 생성(차트 출력부에서 확용할 수 있도록)
+  - DNN, regression, classification or RNN
+  - 선형적으로 예상 가격을 훈련, 예측하는 기능(regression)
+  - 주기를 학습해서 상향/하향/관망을 훈련,예측하는 기능(classification, 다중분류 또는 RNN)
+  - 가격을 예측, 예측한 데이터를 Numpy array로 저장(chart viewer에서 출력할 수 있도록)
   - 분기별 재무정보(영업이익, 현금 등)를 활용하는 방법 검토 필요(가중치에 상수값으로 ?)
-  
+  * 참고자료
+  https://www.tensorflow.org/tutorials/keras/basic_regression?hl=ko
   
  ### 차트 예측 viewer
  #### 목표
@@ -118,7 +121,6 @@ KOSPI 가격을 예측하는 프로그램.
  - GUI 프레임워크는 맥과 윈도우에서 모두 사용이 가능한 Qt를 이용
  - 실제 현재 주식그래프를 비교 데이터로 출력(추후 서버 연동 시)
  - 서버 연동을 할 경우, 웹에서 출력
-  
 
  ### 챗봇
  - 슬랙 API를 활용해서 종목에 대한 예측정보(시간별 예상 가격)를 텍스트로 답장
