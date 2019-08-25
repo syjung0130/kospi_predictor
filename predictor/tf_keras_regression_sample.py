@@ -94,6 +94,33 @@ def build_model():
 
     return model
 
+def plot_history(history):
+    hist = pd.DataFrame(history.history)
+    hist['epoch'] = history.epoch
+
+    plt.figure(figsize=(8,12))
+
+    plt.subplot(2,1,1)
+    plt.xlabel('Epoch')
+    plt.ylabel('Mean Abs Error [MPG]')
+    plt.plot(hist['epoch'], hist['mean_absolute_error'],
+            label='Train Error')
+    plt.plot(hist['epoch'], hist['val_mean_absolute_error'],
+            label = 'Val Error')
+    plt.ylim([0,5])
+    plt.legend()
+
+    plt.subplot(2,1,2)
+    plt.xlabel('Epoch')
+    plt.ylabel('Mean Square Error [$MPG^2$]')
+    plt.plot(hist['epoch'], hist['mean_squared_error'],
+            label='Train Error')
+    plt.plot(hist['epoch'], hist['val_mean_squared_error'],
+            label = 'Val Error')
+    plt.ylim([0,20])
+    plt.legend()
+    plt.show()
+
 dataset = get_dataset()
 dataset = customize_dataset(dataset)
 print("dataset: {}".format(dataset.tail()))
@@ -116,3 +143,82 @@ print('normalized test data : {}'.format(normed_test_data))
 
 model = build_model()
 model.summary()
+
+'''
+모델 훈련
+이 모델을 1000번 정도 훈련시켜 보자.
+훈련 정확도와 검증 정확도는 history 객체에 저장된다.
+'''
+
+# 에포크가 끝날 때마다 점(.)을 출력해 훈련 진행 과정을 표시합니다
+class PrintDot(keras.callbacks.Callback):
+  def on_epoch_end(self, epoch, logs):
+    if epoch % 100 == 0: print('')
+    print('.', end='')
+
+EPOCHS = 1000
+
+# keras.callbacks.Callback클래스를 상속한 클래스 객체를 
+# fit()함수의 전달인자로 넘겨주면 매 에포크마다 사용자가 정의한 콜백을 수행할 수 있다.
+# 리스트로 전달하는 걸로 봐서, 콜백을 여러개 전달할 수 있는 것으로 보인다.
+history = model.fit(
+    normed_train_data,
+    train_labels,
+    epochs=EPOCHS,
+    validation_split=0.2,
+    verbose=0,
+    callbacks=[PrintDot()]
+)
+
+# model.fit()을 하면 history객체가 반환되는데
+# 이 객체에는 모델의 훈련 과정이 저장되어 있고
+# pandas를 통해 시각화할 수 있다.
+pd_history = pd.DataFrame(history.history)
+pd_history['epoch'] = history.epoch
+print("===== history =====")
+print(pd_history.tail)
+
+plot_history(history)
+
+'''
+에러값이 크가 줄어들다가 0~200 사이의 값에서는 더이상 줄어들지 않고 있다.
+이 지점부터 모델이 거의 향상되지 않고 있다.
+model.fit 메서드를 수정하여 검증 점수가 향상되지 않으면 자동으로 훈련을 멈추도록 만들어 보죠. 
+에포크마다 훈련 상태를 점검하기 위해 EarlyStopping 콜백(callback)을 사용하겠습니다. 
+지정된 에포크 횟수 동안 성능 향상이 없으면 자동으로 훈련이 멈춥니다.
+'''
+
+model = build_model()
+
+# patience 매개변수는 성능 향상을 체크할 에포크 횟수입니다
+early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
+
+history = model.fit(normed_train_data, train_labels, epochs=EPOCHS,
+                    validation_split = 0.2, verbose=0, callbacks=[early_stop, PrintDot()])
+
+plot_history(history)
+
+# 이 그래프를 보면 검증 세트의 평균 오차가 약 +/- 2 MPG입니다. 좋은 결과인가요? 이에 대한 평가는 여러분에게 맡기겠습니다.
+# 모델을 훈련할 때 사용하지 않았던 테스트 세트에서 모델의 성능을 확인해 보죠. 이를 통해 모델이 실전에 투입되었을 때 모델의 성능을 짐작할 수 있습니다:
+loss, mae, mse = model.evaluate(normed_test_data, test_labels, verbose=0)
+print("테스트 세트의 평균 절대 오차: {:5.2f} MPG".format(mae))
+
+# 예측
+# 테스트 세트의 샘플을 사용해서 MPG 값을 예측해보자
+test_predictions = model.predict(normed_test_data).flatten()
+
+plt.scatter(test_labels, test_predictions)
+plt.xlabel('True Values [MPG]')
+plt.ylabel('Predictions [MPG]')
+plt.axis('equal')
+plt.axis('square')
+plt.xlim([0, plt.xlim()[1]])
+plt.ylim([0, plt.ylim()[1]])
+_ = plt.plot([-100, 100], [-100, 100])
+plt.show()
+
+error = test_predictions - test_labels
+plt.hist(error, bins = 25)
+plt.xlabel("Prediction Error [MPG]")
+_ = plt.ylabel("Count")
+plt.show()
