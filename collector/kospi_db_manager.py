@@ -80,6 +80,10 @@ class KospiDBManager:
     def pd_write_db(self, str_table_name):
         self.pd_df_kospi_db.to_sql(str_table_name, self.get_connection())
     
+    def get_pd_db(self):
+        self.pd_read_sql("SELECT * FROM '{0}_day'".format(self.table))
+        return self.pd_df_kospi_db
+    
     def pd_write_labelled_db(self):
         if "day" in self.table:
             self.pd_write_db("{}_dataset".format(self.table))
@@ -124,7 +128,9 @@ class KospiDBManager:
         self.open_db()
         self.add_labelled_data()
 
-# # kospi_db_manager 검증용 코드
-# str_code = "035420_day"
-# db_manager = KospiDBManager(str_code)
-# db_manager.check_kospi_db()
+# 모듈을 바로 실행할 때는 사용되지만, import할 때는 사용되지 않는다.
+if __name__ == '__main__':
+    # kospi_db_manager 검증용 코드
+    str_code = "035420_day"
+    db_manager = KospiDBManager(str_code)
+    db_manager.check_kospi_db()
