@@ -8,7 +8,20 @@ class eGradientStatus(enum.IntEnum):
     DECREASE = 1,
     INFLECTION = 2
 
-class KospiDBManager:
+class Singleton:
+    __instance = None
+
+    @classmethod
+    def __getInstance(cls):
+        return cls.__instance
+    
+    @classmethod
+    def getInstance(cls, *args, **kargs):
+        cls.__instance = cls(*args, **kargs)
+        cls.getInstance = cls.__getInstance
+        return cls.__instance
+
+class KospiDBManager(Singleton):
     def __init__(self, table_name):
         self.table = table_name
         self.open_db()
@@ -132,5 +145,5 @@ class KospiDBManager:
 if __name__ == '__main__':
     # kospi_db_manager 검증용 코드
     str_code = "035420_day"
-    db_manager = KospiDBManager(str_code)
+    db_manager = KospiDBManager.instance(str_code)
     db_manager.check_kospi_db()

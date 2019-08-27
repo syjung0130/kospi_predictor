@@ -14,8 +14,8 @@ import sqlite3
 import threading
 import re
 import collections
-from timeutill_helper import TimeUtillHelper
-from kospi_db_manager import KospiDBManager
+from collector.timeutill_helper import TimeUtillHelper
+from collector.kospi_db_manager import KospiDBManager
 
 class Collector:
     def __init__(self, code, start_time, end_time):
@@ -154,7 +154,7 @@ class HourlyCollector(Collector):
         
     def update_stock_database(self):
         self.table_name = "{}_hour".format(self.str_code)
-        self.db_manager = KospiDBManager(self.table_name)
+        self.db_manager = KospiDBManager.getInstance(self.table_name)
         self.db_manager.update_hour_db(self.price_table, self.volume_table)
 
     def update_labelled_database(self):
@@ -175,7 +175,7 @@ class DailyCollector(Collector):
 
     def write_db_from_web_api_data(self, web_data_frame):
         self.table_name = "{}_day".format(self.str_code)
-        self.db_manager = KospiDBManager(self.table_name)
+        self.db_manager = KospiDBManager.getInstance(self.table_name)
         self.db_manager.update_day_db(web_data_frame)
 
     def update_stock_database(self):
@@ -184,16 +184,17 @@ class DailyCollector(Collector):
     def update_labelled_database(self):
         self.db_manager.add_labelled_data()
 
-start_time = TimeUtillHelper(2009, 5, 1)
-end_time = TimeUtillHelper(2019, 6, 20)
-daily_collector = DailyCollector("035420", start_time, end_time)
-daily_collector.read_stock_data()
-daily_collector.update_stock_database()
-daily_collector.update_labelled_database()
+if __name__ == '__main__':
+    start_time = TimeUtillHelper(2009, 5, 1)
+    end_time = TimeUtillHelper(2019, 6, 20)
+    daily_collector = DailyCollector("035420", start_time, end_time)
+    daily_collector.read_stock_data()
+    daily_collector.update_stock_database()
+    daily_collector.update_labelled_database()
 
-# start_time = TimeUtillHelper(2019, 7, 29, 9, 10, 00)
-# end_time = TimeUtillHelper(2019, 8, 2, 15, 30, 00)
-# hourly_collector = HourlyCollector("035420", start_time, end_time)
-# hourly_collector.read_stock_data()
-# hourly_collector.update_stock_database()
-# hourly_collector.update_labelled_database()
+    # start_time = TimeUtillHelper(2019, 7, 29, 9, 10, 00)
+    # end_time = TimeUtillHelper(2019, 8, 2, 15, 30, 00)
+    # hourly_collector = HourlyCollector("035420", start_time, end_time)
+    # hourly_collector.read_stock_data()
+    # hourly_collector.update_stock_database()
+    # hourly_collector.update_labelled_database()
