@@ -8,20 +8,15 @@ class eGradientStatus(enum.IntEnum):
     DECREASE = 1,
     INFLECTION = 2
 
-class Singleton:
-    __instance = None
+class Singleton(type):
+    _instances = {}
+    def __call__(class_, *args, **kargs):
+        if class_ not in class_._instances:
+            class_._instances[class_] = super(Singleton, class_).__calll__(*args, **kargs)
+        return class_._instances[class_]
 
-    @classmethod
-    def __getInstance(cls):
-        return cls.__instance
-    
-    @classmethod
-    def getInstance(cls, *args, **kargs):
-        cls.__instance = cls(*args, **kargs)
-        cls.getInstance = cls.__getInstance
-        return cls.__instance
-
-class KospiDBManager(Singleton):
+class KospiDBManager(object):
+    __metaclass__ = Singleton
     def __init__(self, table_name):
         self.table = table_name
         self.open_db()

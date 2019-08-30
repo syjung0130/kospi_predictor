@@ -154,7 +154,7 @@ class HourlyCollector(Collector):
         
     def update_stock_database(self):
         self.table_name = "{}_hour".format(self.str_code)
-        self.db_manager = KospiDBManager.getInstance(self.table_name)
+        self.db_manager = KospiDBManager(self.table_name)
         self.db_manager.update_hour_db(self.price_table, self.volume_table)
 
     def update_labelled_database(self):
@@ -175,7 +175,7 @@ class DailyCollector(Collector):
 
     def write_db_from_web_api_data(self, web_data_frame):
         self.table_name = "{}_day".format(self.str_code)
-        self.db_manager = KospiDBManager.getInstance(self.table_name)
+        self.db_manager = KospiDBManager(self.table_name)
         self.db_manager.update_day_db(web_data_frame)
 
     def update_stock_database(self):

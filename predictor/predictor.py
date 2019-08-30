@@ -16,9 +16,9 @@ class Predictor:
         print(tf.__version__)
 
     def get_dataset(self):
-        dbManager = KospiDBManager.getInstance("035420_day")
+        dbManager = KospiDBManager("035420")
         # TODO: 종목코드 관리, DB인스턴스 관리하는 싱글톤 클래스 구현 필요
-        # pd = dbManager.get_pd_db()
+        pd = dbManager.get_pd_db()
         print(pd.head)
 
 if __name__ == '__main__':
