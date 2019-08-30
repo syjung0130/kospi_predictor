@@ -2,7 +2,7 @@ from collector.kospi_db_manager import KospiDBManager
 from collector.collector import DailyCollector
 # from collector.collector import HourlyCollector
 from collector.timeutill_helper import TimeUtillHelper
-from predictor.predictor import Predictor
+from predictor.predictor import Pre
 
 start_time = TimeUtillHelper(2009, 5, 1)
 end_time = TimeUtillHelper(2019, 6, 20)
@@ -18,5 +18,5 @@ daily_collector.update_labelled_database()
 # hourly_collector.update_stock_database()
 # hourly_collector.update_labelled_database()
 
-g_predictor = Predictor()
-g_predictor.get_dataset()
+predictor = Predictor()
+predictor.check_predictor()
