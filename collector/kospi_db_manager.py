@@ -86,16 +86,17 @@ class KospiDBManager(object):
         self.pd_df_kospi_db = pd.read_sql(str_query, self.get_connection())
 
     def pd_write_db(self, str_table_name):
-        self.pd_df_kospi_db.to_sql(str_table_name, self.get_connection())
+        try:
+            self.pd_df_kospi_db.to_sql(str_table_name, self.get_connection(), schema=None, if_exists='fail')
+        except ValueError:
+            print("The table is already exists in pandas dataframe: {0}".format(str_table_name))
     
     def get_pd_db(self):
         self.pd_read_sql("SELECT * FROM '{0}_day'".format(self.table))
         return self.pd_df_kospi_db
     
     def pd_write_labelled_db(self):
-        if "day" in self.table:
-            self.pd_write_db("{}_dataset".format(self.table))
-        elif "hour" in self.table:
+        if "day" in self.table or "hour" in self.table:
             self.pd_write_db("{}_dataset".format(self.table))
         else:
             print('invalid database')
