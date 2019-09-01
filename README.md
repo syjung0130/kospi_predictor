@@ -22,11 +22,9 @@ docker build -t scrapper:imx-1 .
  - virtualenv 패키지 설치  
  pip3 install virtualenv  
 
- - virtualenv 실행  
- cd virtualenv  
- virtualenv venv  
- (Linux or Mac) : source venv/bin/activate  
- (Window)       : call venv\Scripts\activate  
+ - virtualenv 실행    
+ (Linux or Mac) : source virtualenv/venv/bin/activate  
+ (Window)       : call virtualenv\venv\Scripts\activate  
  
  - virtualenv 상에서 필요한 패키지 설치  
  pip3 install -r requirements.txt
@@ -34,8 +32,12 @@ docker build -t scrapper:imx-1 .
  - 추가로 설치한 패키지가 있다면 설치된 패키지 추출  
  pip3 freeze > requirements.txt
 
+ - 프로그램 실행  
+ python3 main.py  
+
  - virtualenv 종료  
  deactivate
+
 
 ## 개요
 KOSPI 가격을 예측하는 프로그램.
