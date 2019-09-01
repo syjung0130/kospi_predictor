@@ -92,7 +92,7 @@ class KospiDBManager(object):
             print("The table is already exists in pandas dataframe: {0}".format(str_table_name))
     
     def get_pd_db(self):
-        self.pd_read_sql("SELECT * FROM '{0}_day'".format(self.table))
+        self.pd_read_sql("SELECT * FROM '{0}_day_dataset'".format(self.table))
         return self.pd_df_kospi_db
     
     def pd_write_labelled_db(self):
