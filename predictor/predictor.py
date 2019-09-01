@@ -20,7 +20,11 @@ class Predictor:
         dbManager = KospiDBManager("035420")
         return copy.deepcopy(dbManager.get_pd_db())
 
-    def check_predictor():
+    # 정규화, 수치를 스케일링
+    def norm(self, dataset, stats):
+        return (dataset - stats['mean']) / stats['std']
+
+    def check_predictor(self):
         predictor = Predictor()
         dataframe = predictor.get_dataset()
         print(dataframe.head)

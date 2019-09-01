@@ -80,7 +80,7 @@ class KospiDBManager(object):
         self.apply_to_db()
     
     def execute_query(self, str_query):
-        self.connection.execute(str_query)
+        return self.connection.execute(str_query)
 
     def pd_read_sql(self, str_query):
         self.pd_df_kospi_db = pd.read_sql(str_query, self.get_connection())

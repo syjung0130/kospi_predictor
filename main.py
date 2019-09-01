@@ -2,7 +2,7 @@ from collector.kospi_db_manager import KospiDBManager
 from collector.collector import DailyCollector
 # from collector.collector import HourlyCollector
 from collector.timeutill_helper import TimeUtillHelper
-from predictor.predictor import Pre
+from predictor.predictor import Predictor
 
 start_time = TimeUtillHelper(2009, 5, 1)
 end_time = TimeUtillHelper(2019, 6, 20)
