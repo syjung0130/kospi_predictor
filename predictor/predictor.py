@@ -49,7 +49,8 @@ class DataCustomizer:
     def print_pd_dataframe(self):
         print(self.dataframe.head)
 
-    def get_dataset(self):
+    def load_data(self):
+        self.initialize()
         return copy.deepcopy(self.np_dataset)
 
 class Predictor:
@@ -58,17 +59,10 @@ class Predictor:
     
     def check_predictor(self):
         self.customizer = DataCustomizer()
-        self.customizer.initialize()
+        dataset = self.customizer.load_data()
         self.customizer.print_pd_dataframe()
-        dataset = self.customizer.get_dataset()
-        print(dataset[0])
-        print(dataset[1])
-        print(dataset[2])
-        print(dataset[3])
-        print(dataset[4])
+        for i in range(5):
+            print(dataset[i])    
 
 if __name__ == '__main__':
     print(tf.__version__)
-    g_predictor = Predictor()
-    dataframe = g_predictor.get_dataset()
-    print(dataframe.head)
