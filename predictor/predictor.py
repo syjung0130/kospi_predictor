@@ -13,43 +13,59 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from collector.kospi_db_manager import KospiDBManager
 
-class Predictor:
+class DataCustomizer:
     def __init__(self):
         print(tf.__version__)
+    
+    def initialize(self):
+        self.dbManager = KospiDBManager("035420")
+        self.dataframe = copy.deepcopy(self.dbManager.get_pd_db())
+        self.to_numpy_array()
+        self.norm()
+    
+    def to_numpy_array(self):
+        self.np_dataset = np.array([self.dataframe['Open'].values, 
+                                    self.dataframe['Close'].values,
+                                    self.dataframe['Volume'].values,
+                                    self.dataframe['Gradient'].values,
+                                    self.dataframe['PriceStatus'].values])
 
-    def get_dataset(self):
-        dbManager = KospiDBManager("035420")
-        return copy.deepcopy(dbManager.get_pd_db())
-
-    # 정규화, 수치를 스케일링
-    def norm(self, dataset):
-        # print('type {0}, {1}'.format(type(dataset), type(dataset['Gradient'])))
-        # print('type {0}'.format(type(dataset['Gradient'].values)))
-        
-        max = np.max(dataset['Gradient'])
-        min = np.min(dataset['Gradient'])        
+    def norm(self):
+        gradients = self.np_dataset[3]
+        max = np.max(gradients)
+        min = np.min(gradients)
         devide_num = 0.0
         if(abs(max) > abs(min)):
             devide_num = abs(max)
         else:
             devide_num = abs(min)
             
-        dataset['Gradient'] = (dataset['Gradient'].values) / devide_num
-        return dataset
+        self.np_dataset[3] = gradients / devide_num
+        return self.np_dataset
 
-    def customize_dataset(self, dataset):
-        origin = dataset.pop('Adj Close')
-        return dataset
+    def divide_dataset(self):#TODO: return train, test dataset
+        pass
     
-    def devide_dataset(self, dataset):# TODO:
-        return dataset
+    def print_pd_dataframe(self):
+        print(self.dataframe.head)
 
+    def get_dataset(self):
+        return copy.deepcopy(self.np_dataset)
+
+class Predictor:
+    def __init__(self):
+        print(tf.__version__)
+    
     def check_predictor(self):
-        predictor = Predictor()
-        dataframe = predictor.get_dataset()
-        dataframe = self.norm(dataframe)
-        dataframe = self.customize_dataset(dataframe)
-        print(dataframe.head)
+        self.customizer = DataCustomizer()
+        self.customizer.initialize()
+        self.customizer.print_pd_dataframe()
+        dataset = self.customizer.get_dataset()
+        print(dataset[0])
+        print(dataset[1])
+        print(dataset[2])
+        print(dataset[3])
+        print(dataset[4])
 
 if __name__ == '__main__':
     print(tf.__version__)
