@@ -57,12 +57,15 @@ class Predictor:
     def __init__(self):
         print(tf.__version__)
     
-    def check_predictor(self):
+    def load_data(self):
         self.customizer = DataCustomizer()
-        dataset = self.customizer.load_data()
+        self.dataset = self.customizer.load_data()
         self.customizer.print_pd_dataframe()
         for i in range(5):
-            print(dataset[i])    
+            print(self.dataset[i])
+
+    def check_predictor(self):
+        self.load_data()
 
 if __name__ == '__main__':
     print(tf.__version__)
