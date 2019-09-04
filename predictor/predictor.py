@@ -60,6 +60,13 @@ class DataCustomizer:
         row_length = self.np_dataset.shape[0]
         train_dataset_length = int(row_length * 0.8)
         return copy.deepcopy((self.np_dataset[:train_dataset_length], self.np_dataset[train_dataset_length:]))
+    
+    # dataset에서 Gradient, PriceStatus 컬럼을 분리해서 numpy에 저장, Gradient, PriceStatus 각각을 label로 저장
+    def get_gradient_labels(self):#TODO: return train, test labels
+        pass
+
+    def get_price_status_labels(self):#TODO: return train, test labels
+        pass
 
 class Predictor:
     def __init__(self):
