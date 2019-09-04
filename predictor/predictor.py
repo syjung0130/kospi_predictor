@@ -52,7 +52,14 @@ class DataCustomizer:
 
     def load_data(self):
         self.initialize()
-        return copy.deepcopy(self.np_dataset)
+        dim = self.np_dataset.shape
+        print("0: {0}, 1: {1}".format(dim[0], dim[1]))
+        print("0: {0}, 1: {1}".format(self.np_dataset.shape[0], self.np_dataset.shape[1]))
+        
+        # divide dataset
+        row_length = self.np_dataset.shape[0]
+        train_dataset_length = int(row_length * 0.8)
+        return copy.deepcopy((self.np_dataset[:train_dataset_length], self.np_dataset[train_dataset_length:]))
 
 class Predictor:
     def __init__(self):
@@ -60,10 +67,12 @@ class Predictor:
     
     def load_data(self):
         self.customizer = DataCustomizer()
-        self.dataset = self.customizer.load_data()
+        (self.train_dataset, self.test_dataset) = self.customizer.load_data()
         self.customizer.print_pd_dataframe()
-        print(self.dataset.shape)
-        print(self.dataset)
+        print("train, test shape: ({0}, {1})".format(self.train_dataset.shape, self.test_dataset.shape))
+        print("train dataset: \n {0}".format(self.train_dataset))
+        print("train dataset: \n {0}".format(self.test_dataset))
+        return (self.train_dataset, self.test_dataset)
 
     def check_predictor(self):
         self.load_data()
