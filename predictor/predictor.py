@@ -24,11 +24,12 @@ class DataCustomizer:
         self.norm()
     
     def to_numpy_array(self):
-        self.np_dataset = np.array([self.dataframe['Open'].values, 
-                                    self.dataframe['Close'].values,
-                                    self.dataframe['Volume'].values,
-                                    self.dataframe['Gradient'].values,
-                                    self.dataframe['PriceStatus'].values])
+        self.np_dataset = np.transpose(
+                            np.array([self.dataframe['Open'].values, 
+                            self.dataframe['Close'].values,
+                            self.dataframe['Volume'].values,
+                            self.dataframe['Gradient'].values,
+                            self.dataframe['PriceStatus'].values]))
 
     def norm(self):
         gradients = self.np_dataset[3]
@@ -61,8 +62,8 @@ class Predictor:
         self.customizer = DataCustomizer()
         self.dataset = self.customizer.load_data()
         self.customizer.print_pd_dataframe()
-        for i in range(5):
-            print(self.dataset[i])
+        print(self.dataset.shape)
+        print(self.dataset)
 
     def check_predictor(self):
         self.load_data()
