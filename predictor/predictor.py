@@ -17,11 +17,25 @@ class DataCustomizer:
     def __init__(self):
         print(tf.__version__)
     
-    def initialize(self):
+    def load_dataframe(self):
         self.dbManager = KospiDBManager("035420")
         self.dataframe = copy.deepcopy(self.dbManager.get_pd_db())
-        self.to_numpy_array()
-        self.norm()
+
+    def normalize(self):
+        gradients = self.dataframe['Gradient'].values
+        max = np.max(gradients)
+        min = np.min(gradients)
+        devide_num = 0.0
+        if(abs(max) > abs(min)):
+            devide_num = abs(max)
+        else:
+            devide_num = abs(min)
+        
+        gradients = gradients / devide_num
+        self.dataframe['Gradient'] = pd.Series(gradients)
+
+    def customize_dataframe(self):
+        self.normalize()
     
     def to_numpy_array(self):
         self.np_dataset = np.transpose(
@@ -31,19 +45,6 @@ class DataCustomizer:
                             self.dataframe['Gradient'].values,
                             self.dataframe['PriceStatus'].values]))
 
-    def norm(self):
-        gradients = self.np_dataset[3]
-        max = np.max(gradients)
-        min = np.min(gradients)
-        devide_num = 0.0
-        if(abs(max) > abs(min)):
-            devide_num = abs(max)
-        else:
-            devide_num = abs(min)
-            
-        self.np_dataset[3] = gradients / devide_num
-        return self.np_dataset
-
     def divide_dataset(self):#TODO: return train, test dataset
         pass
     
@@ -51,7 +52,9 @@ class DataCustomizer:
         print(self.dataframe.head)
 
     def load_data(self):
-        self.initialize()
+        self.load_dataframe()
+        self.customize_dataframe()
+        self.to_numpy_array()
         dim = self.np_dataset.shape
         print("0: {0}, 1: {1}".format(dim[0], dim[1]))
         print("0: {0}, 1: {1}".format(self.np_dataset.shape[0], self.np_dataset.shape[1]))
