@@ -36,17 +36,28 @@ class DataCustomizer:
 
     def customize_dataframe(self):
         self.normalize()
-    
-    def to_numpy_array(self):
+
+    def to_numpy_dataset_array(self):
         self.np_dataset = np.transpose(
-                            np.array([self.dataframe['Open'].values, 
+                            np.array([
+                            self.dataframe['Open'].values, 
                             self.dataframe['Close'].values,
                             self.dataframe['Volume'].values,
-                            self.dataframe['Gradient'].values,
-                            self.dataframe['PriceStatus'].values]))
+                            ]))
+    
+    def to_numpy_label_array(self):
+        self.np_gradient_label = np.transpose(
+                            np.array([
+                            self.dataframe['Gradient'].values
+                            ]))
+        self.np_pricestatus_label = np.transpose(
+                            np.array([
+                            self.dataframe['PriceStatus'].values
+                            ]))
 
-    def divide_dataset(self):#TODO: return train, test dataset
-        pass
+    def to_numpy_array(self):
+        self.to_numpy_dataset_array()
+        self.to_numpy_label_array()
     
     def print_pd_dataframe(self):
         print(self.dataframe.head)
@@ -62,14 +73,15 @@ class DataCustomizer:
         # divide dataset
         row_length = self.np_dataset.shape[0]
         train_dataset_length = int(row_length * 0.8)
-        return copy.deepcopy((self.np_dataset[:train_dataset_length], self.np_dataset[train_dataset_length:]))
+        return (self.np_dataset[:train_dataset_length], self.np_dataset[train_dataset_length:])
     
-    # dataset에서 Gradient, PriceStatus 컬럼을 분리해서 numpy에 저장, Gradient, PriceStatus 각각을 label로 저장
-    def get_gradient_labels(self):#TODO: return train, test labels
-        pass
+    def get_gradient_labels(self):
+        print("gradient_labels: ({0})\n{1}".format(self.np_gradient_label.shape, self.np_gradient_label))
+        return self.np_gradient_label
 
-    def get_price_status_labels(self):#TODO: return train, test labels
-        pass
+    def get_pricestatus_labels(self):
+        print("pricestatus_labels: ({0})\n{1}".format(self.np_pricestatus_label.shape, self.np_pricestatus_label))
+        return self.np_pricestatus_label
 
 class Predictor:
     def __init__(self):
@@ -82,10 +94,18 @@ class Predictor:
         print("train, test shape: ({0}, {1})".format(self.train_dataset.shape, self.test_dataset.shape))
         print("train dataset: \n {0}".format(self.train_dataset))
         print("train dataset: \n {0}".format(self.test_dataset))
-        return (self.train_dataset, self.test_dataset)
+        return copy.deepcopy((self.train_dataset, self.test_dataset))
+    
+    def get_gradient_labels(self):
+        return copy.deepcopy(self.customizer.get_gradient_labels())
+    
+    def get_pricestatus_labels(self):
+        return copy.deepcopy(self.customizer.get_pricestatus_labels())
 
     def check_predictor(self):
-        self.load_data()
+        (train_data, test_data) = self.load_data()
+        gradient_labels = self.get_gradient_labels()
+        price_labels = self.get_pricestatus_labels()
 
 if __name__ == '__main__':
     print(tf.__version__)
