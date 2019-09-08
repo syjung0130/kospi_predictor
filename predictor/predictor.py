@@ -21,21 +21,20 @@ class DataCustomizer:
         self.dbManager = KospiDBManager("035420")
         self.dataframe = copy.deepcopy(self.dbManager.get_pd_db())
 
-    def normalize(self):
-        gradients = self.dataframe['Gradient'].values
-        max = np.max(gradients)
-        min = np.min(gradients)
-        devide_num = 0.0
-        if(abs(max) > abs(min)):
-            devide_num = abs(max)
-        else:
-            devide_num = abs(min)
-        
-        gradients = gradients / devide_num
-        self.dataframe['Gradient'] = pd.Series(gradients)
+    # 0~1 사이로 스케일링, min_max 정규화를 사용.. 확률 분포와 관련된 data가 아니므로 표준편차보다는 min_max정규화가 적절
+    def normalize(self, coloumn_name):
+        rows = self.dataframe[coloumn_name].values
+        max = np.max(rows)
+        min = np.min(rows)
+        divide_num = max - min
+        rows = (rows - min) / divide_num
+        self.dataframe[coloumn_name] = pd.Series(rows)
 
     def customize_dataframe(self):
-        self.normalize()
+        self.normalize('Gradient')
+        self.normalize('Open')
+        self.normalize('Close')
+        self.normalize('Volume')
 
     def to_numpy_dataset_array(self):
         self.np_dataset = np.transpose(
