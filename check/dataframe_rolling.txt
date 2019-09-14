@@ -1,0 +1,8 @@
+Pandas Dataframe 칼럼의 롤링 그라디언트, data science 쪽에서는 이동평균값이라는 것을 사용한다고한다.
+dataframe.rolling()함수가 이동평균값을 계산하는 함수, window는 data가 몇개 이상부터 시작할 것인지를 의미
+https://stackoverflow.com/questions/48090227/rolling-gradient-for-pandas-dataframe-column
+https://stackoverflow.com/questions/16476924/how-to-iterate-over-rows-in-a-dataframe-in-pandas
+
+dataframe rolling
+https://ordo.tistory.com/67
+https://wikidocs.net/4374

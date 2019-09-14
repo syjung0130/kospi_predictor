@@ -97,10 +97,55 @@ class Predictor:
     def get_pricestatus_labels(self):
         return copy.deepcopy(self.customizer.get_pricestatus_labels())
 
+    def build_model(self):
+        '''
+        [reference]
+        tf.keras.layers.Dense   : https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dense
+        model.compile, metrics  : https://keras.io/models/sequential/
+        tf keras optimizer      : https://www.tensorflow.org/api_docs/python/tf/keras/optimizers
+        keras optimizer         : https://keras.io/optimizers/
+        tensorflow              : https://www.tensorflow.org/api_docs/python/tf/train/Optimizer
+        '''
+        model = keras.Sequential([
+            layers.Dense(64, activation=tf.nn.relu, input_shape=[3]),
+            layers.Dense(64, activation=tf.nn.relu),
+            layers.Dense(1)
+        ])
+
+        model.compile(
+            loss='mean_squared_error',
+            optimizer=tf.keras.optimizers.RMSprop(0.001),
+            metrics=['mean_absolute_error', 'mean_squared_error']
+        )
+
+        return model
+
     def check_predictor(self):
         (train_data, test_data) = self.load_data()
         gradient_labels = self.get_gradient_labels()
         price_labels = self.get_pricestatus_labels()
+        model = self.build_model()
+        model.summary()
+
+        row_length = gradient_labels.shape[0]
+        train_dataset_length = int(row_length * 0.8)
+        np_train_gradient_labels = gradient_labels[:train_dataset_length]
+
+        EPOCHS = 1000
+        history = model.fit(
+            train_data,
+            np_train_gradient_labels,
+            epochs=EPOCHS,
+            validation_split=0.2,
+            verbose=0,
+            callbacks=[PrintDot()]
+        )
+
+# 에포크가 끝날 때마다 점(.)을 출력해 훈련 진행 과정을 표시합니다
+class PrintDot(keras.callbacks.Callback):
+  def on_epoch_end(self, epoch, logs):
+    if epoch % 100 == 0: print('')
+    print('.', end='')
 
 if __name__ == '__main__':
     print(tf.__version__)
