@@ -38,7 +38,17 @@ docker build -t scrapper:imx-1 .
  - virtualenv 종료  
  deactivate
 
-
+ - jupytern notebook 실행
+ pip3 install ipykernel  
+ ipython kernel install --user --name=venv_kospi_predictor  
+ pip3 install jupyter  
+ pip3 freeze > requirements.txt  
+ jupyter notebook  
+ kospi_predictor.ipynb를 선택, 실행  
+ (주의)  
+ jupyter 노트북을 아직 생성안했다면, new -> kernel로 venv_kospi_predictor를 선택  
+ 이미 생성이 되어있다면, notebook에서 python kernel을 venv_kospi_predictor로 변경  
+  
 ## 개요
 KOSPI 가격을 예측하는 프로그램.
 
