@@ -110,12 +110,12 @@ KOSPI 가격을 예측하는 프로그램.
   - 주기를 학습해서 매도/매수/관망을 분류
   - 선형적인 값 예측과 주기로 상/하향/변곡점 예측할 것인지는 옵션을 사용자가 결정할 수 있도록
   
- #### 개발 환경(TODO)
+ #### 개발 환경(완료)
   - Keras + tensorflow 2.0: 초기 구현은 keras로 구현, 모델을 튜닝하면서 필요할 경우 tensorflow를 사용
-  - virtualenv(완료)
-  - jupyter notebook(virtualenv 환경에서 jupyter notebook을 사용할 수 있도록)
+  - virtualenv
+  - jupyter notebook(virtualenv)
 
- #### 상세 기능(TODO)
+ #### 상세 기능(진행 )
   - DNN, regression, classification or RNN
   - 선형적으로 예상 가격을 훈련, 예측하는 기능(regression)
   - 주기를 학습해서 상향/하향/관망을 훈련,예측하는 기능(classification, 다중분류 또는 RNN)
