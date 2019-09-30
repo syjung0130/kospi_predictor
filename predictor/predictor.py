@@ -106,20 +106,104 @@ class Predictor:
         keras optimizer         : https://keras.io/optimizers/
         tensorflow              : https://www.tensorflow.org/api_docs/python/tf/train/Optimizer
         '''
-        model = keras.Sequential([
+        self.model = keras.Sequential([
             layers.Dense(64, activation=tf.nn.relu, input_shape=[3]),
             layers.Dense(64, activation=tf.nn.relu),
             layers.Dense(1)
         ])
 
-        model.compile(
+        self.model.compile(
             loss='mean_squared_error',
             optimizer=tf.keras.optimizers.RMSprop(0.001),
             metrics=['mean_absolute_error', 'mean_squared_error']
         )
+        self.model.summary()
 
-        return model
+        return self.model
 
+    def load_data(self):
+        self.customizer = DataCustomizer()
+        (self.train_data, self.test_data) = self.customizer.load_data()
+        self.gradient_labels = self.get_gradient_labels()
+        self.price_labels = self.get_pricestatus_labels()
+        # self.model = self.build_model()
+        # self.model.summary()
+
+        row_length = self.gradient_labels.shape[0]
+        train_dataset_length = int(row_length * 0.8)
+        self.np_train_gradient_labels = self.gradient_labels[:train_dataset_length]        
+    
+    def fit_model(self, model):
+        EPOCHS = 1000
+        # self.history = model.fit(
+        #     train_data,
+        #     np_train_gradient_labels,
+        #     epochs=EPOCHS,
+        #     validation_split=0.2,
+        #     verbose=0,
+        #     callbacks=[PrintDot()]
+        # )
+        self.history = model.fit(
+            self.train_data,
+            self.np_train_gradient_labels,
+            epochs=EPOCHS,
+            validation_split=0.2,
+            verbose=0
+        )
+        return self.history
+    
+    def evaluate_model(self, history):
+        hist = pd.DataFrame(history.history)
+        hist['epoch'] = history.epoch
+        plt.figure(figsize=(8, 12))#창의 크기를 width:8, height:12로 설정
+
+        plt.subplot(2, 1, 1)# subplot(nrows, ncols, index)
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Abs Error')
+        plt.plot(hist['epoch'], hist['mean_absolute_error'],
+                label='Train Error')
+        plt.plot(hist['epoch'], hist['val_mean_absolute_error'],
+                label='Val Error')
+        plt.ylim([0, 5])
+        plt.legend()
+
+        plt.subplot(2, 1, 2)# subplot(nrows, ncols, index)
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Square Error')
+        plt.plot(hist['epoch'], hist['mean_squared_error'],
+                label='Train Error')
+        plt.plot(hist['epoch'], hist['val_mean_squared_error'],
+                label='Val Error')
+        plt.ylim([0, 20])
+        plt.legend()
+        plt.show()
+    
+    # def plot_history(self, history):
+    #     hist = pd.DataFrame(history.history)
+    #     hist['epoch'] = history.epoch
+    #     plt.figure(figsize=(8, 12))#창의 크기를 width:8, height:12로 설정
+
+    #     plt.subplot(2, 1, 1)# subplot(nrows, ncols, index)
+    #     plt.xlabel('Epoch')
+    #     plt.ylabel('Mean Abs Error')
+    #     plt.plot(hist['epoch'], hist['mean_absolute_error'],
+    #             label='Train Error')
+    #     plt.plot(hist['epoch'], hist['val_mean_absolute_error'],
+    #             label='Val Error')
+    #     plt.ylim([0, 5])
+    #     plt.legend()
+
+    #     plt.subplot(2, 1, 2)# subplot(nrows, ncols, index)
+    #     plt.xlabel('Epoch')
+    #     plt.ylabel('Mean Square Error')
+    #     plt.plot(hist['epoch'], hist['mean_squared_error'],
+    #             label='Train Error')
+    #     plt.plot(hist['epoch'], hist['val_mean_squared_error'],
+    #             label='Val Error')
+    #     plt.ylim([0, 20])
+    #     plt.legend()
+    #     plt.show()
+    
     def check_predictor(self):
         (train_data, test_data) = self.load_data()
         gradient_labels = self.get_gradient_labels()
