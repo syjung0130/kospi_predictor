@@ -83,21 +83,6 @@ KOSPI 가격을 예측하는 프로그램.
     - 차트 상태(고점/저점/상향/하향)정보에 따라 투자 결정(매도/매수/관망)을 판단해서 colum 추가(데이터 라벨링)
     - 일단위의 재가공 기능은 구현 완료, 분 단위의 재가공 기능 구현 완료
     
-  * refactoring(TODO)
-    - datetime 연동부를 별도의 Helper모듈로 구현(time 관련 로직을 한군데서 수정할 수 있도록): 완료  
-    - Collector Base class 구현: 완료  
-    - Database 재가공부를 별도의 모듈로 분리: 완료  
-    - 분 단위의 주식 정보를 Database에 업데이트 하는 부분(update_db())를 KospiDBManager로 이동: 완료  
-    - 일단위 테이블의 컬럼 중 Close를 복사해서 'BasePrice'컬럼에 복사(새로 생성 후): TODO  
-    - 일단위 테이블의 컬럼 중 Close 컬럼대신 BasePrice를 사용해서 Gradient, PriceStatus를 갱신하도록 수정: TODO  
-    - ICollector 추가(polymorphism): TODO  
-    - timeutil_helper의 type을 얻어올 수 있도록 구현, __type__ overloading?, or 상속?: TODO  
-    - 예외처리 로직 추가: TODO  
-    - 로그 출력 방법 변경(logging 모듈 사용): TODO  
-      다음 링크 참고  
-      https://docs.python.org/ko/3/howto/logging.html
-
-    
   * 참고 자료
     - db browser util: https://sqlitebrowser.org/
     - pandas-reader 사용방법 참고(yahoo 일봉 data): https://wikidocs.net/5753
@@ -115,8 +100,8 @@ KOSPI 가격을 예측하는 프로그램.
   - virtualenv
   - jupyter notebook(virtualenv)
 
- #### 상세 기능(진행 )
-  - DNN, regression, classification or RNN
+ #### 상세 기능(진행)
+  - DNN, regression
   - 선형적으로 예상 가격을 훈련, 예측하는 기능(regression)
   - 주기를 학습해서 상향/하향/관망을 훈련,예측하는 기능(classification, 다중분류 또는 RNN)
   - 가격을 예측, 예측한 데이터를 Numpy array로 저장(chart viewer에서 출력할 수 있도록)
@@ -124,14 +109,16 @@ KOSPI 가격을 예측하는 프로그램.
   * 참고자료
   https://www.tensorflow.org/tutorials/keras/basic_regression?hl=ko
   
- ### 차트 예측 viewer
+ ## 회고
+  - 분 단위의 데이터보다는 일 단의의 일봉 데이터만으로도 충분할 것으로 보인다.
+  - 시가, 종가, 거래량 만으로는 데이터가 부족하다. --> 증권거래소 API를 연동해서 재무정보를 얻어오는 방법이 필요하다.
+  - 그래프의 선형적인 값을 예측하는 것(회귀)도 좋지만, 한 종목에 대한 장기간의 그래프를 보면, 상승과 하락을 반복하며 상승하거나 하락한다.
+  상승폭이나 하락폭에 대해서도 학습을 할 수 있는 방법에 대해 연구가 필요하다. 
+  - 데이터를 조작해서 모델에 주입하고 학습은 시킬 수 있는 수준이지만, 모델의 성능을 튜닝하는 방법에 대해 더 스터디가 필요하다.
+  - 보완할 부분에 대해 회고하고 기획하는 시간이 필요하다.
+ 
+ ### 차트 예측 viewer(예정)
  #### 목표
  이번 한 주의 예상 차트를 시/일 단위로 출력
  #### 상세 요구 사항
- - 이번 한 주의 예상 차트를 시/일 단위로 출력
- - GUI 프레임워크는 맥과 윈도우에서 모두 사용이 가능한 Qt를 이용
- - 실제 현재 주식그래프를 비교 데이터로 출력(추후 서버 연동 시)
- - 서버 연동을 할 경우, 웹에서 출력
-
- ### 챗봇
- - 슬랙 API를 활용해서 종목에 대한 예측정보(시간별 예상 가격)를 텍스트로 답장
+ - 웹서버를 연동해서 GUI를 구현 예정
